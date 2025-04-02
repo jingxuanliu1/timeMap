@@ -30,23 +30,22 @@
   transition: background-color 0.3s ease;
   z-index: 1; /* Ensures it’s above the animation */
 }
-
 .task-btn:hover {
   background-color: rgba(255, 255, 255, 0.4);
   color: #FF6200;
 }
-
 .bg-tasks {
-  background: linear-gradient(to bottom, #1E90FF, #000033); /* Space-like gradient */
-  color: #FFFEF6;
+  background: linear-gradient(to bottom, #1E90FF, #000033);
+  color: #ffffff;
 }
 .navbar a.nav-link {
-  color: #FFFEF6 !important;
+  font-size: 18px;
+  font-family: 'Roboto Mono', monospace;
+  color: #050505 !important;
 }
 .bg-dark {
-  background-color: #2E2E2E !important;
+  background-color: #f6f6f6 !important;
 }
-
 .ms-footer {
   background-color: #202020;
 }
@@ -67,5 +66,23 @@
   text-decoration: none;
 }
 .ms-footer-bottom a:hover {
-  color: #fff;
+  color: #ffff;
+}
+.navbar-brand .cool-font {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 35px !important; /* Adjust this value as needed */
+    letter-spacing: 3px;
+    font-weight: 600;
+    color: #050505 !important;
+}
+/* Make username blue when logged in */
+.navbar-nav .nav-link:nth-child(5) { /* Targets the "Hello, username!" span */
+    font-size: 18px;
+    font-family: 'Roboto Mono', monospace;
+    color: #1E90FF !important; /* Blue color matching your gradient */
+}
+
+/* Darken "Designed by" text */
+.ms-footer-bottom span {
+    color: #404040; /* Darker gray instead of white */
 }
