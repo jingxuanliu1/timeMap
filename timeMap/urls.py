@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 def get_urlpatterns():
     return [
@@ -10,3 +12,5 @@ def get_urlpatterns():
     ]
 
 urlpatterns = get_urlpatterns()
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

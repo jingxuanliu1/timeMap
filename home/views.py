@@ -26,3 +26,18 @@ def register(request):
     template_data['title'] = 'Register'
     template_data['form'] = form
     return render(request, 'home/register.html', {'template_data': template_data})
+
+def friends(request):
+    template_data = {}
+    template_data['title'] = 'Friends'
+    return render(request, 'home/friends.html', {'template_data': template_data})
+
+def leaderboard(request):
+    template_data = {}
+    template_data['title'] = 'Leaderboard'
+    return render(request, 'home/leaderboard.html', {'template_data': template_data})
+
+def settings(request):
+    template_data = {}
+    template_data['title'] = 'Settings'
+    return render(request, 'home/settings.html', {'template_data': template_data})

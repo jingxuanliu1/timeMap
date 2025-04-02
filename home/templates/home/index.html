@@ -1,18 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<header class="masthead bg-index text-white text-center py-4">
-  <div class="container d-flex align-items-center flex-column pt-2">
-    <h2>TimeMap</h2>
-    <p>Lets map out your time!</p>
-  </div>
-</header>
-<div class="p-3">
-  <div class="container">
-    <div class="row mt-3">
-      <div class="col mx-auto text-center mb-3">
-        <h4>Welcome to TimeMap - Your Time Management Companion!</h4>
-      </div>
-    </div>
-  </div>
+<div class="bg-index min-vh-100 d-flex justify-content-center align-items-center position-relative">
+  <!-- Background Animation -->
+  <video class="background-animation" autoplay muted loop playsinline>
+    <source src="{% static 'img/rocket_resized.mp4' %}" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <!-- Tasks Button -->
+  <a href="{% url 'tasks.index' %}" class="task-btn">>> Tasks >></a>
 </div>
 {% endblock content %}

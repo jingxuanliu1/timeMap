@@ -1,10 +1,45 @@
-
-.bg-index{
-  background: url("/static/img/background.jpg") no-repeat
-    fixed;
-  background-size: 100% auto;
+.bg-index {
+  /* background: linear-gradient(to bottom, #87CEEB, #1E90FF); /* Sky gradient fallback */
+  overflow: hidden;
+  position: relative;
 }
 
+.background-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Stretches to fill the area */
+  z-index: -1; /* Places it behind the Tasks button */
+  opacity: 0.8; /* Slight transparency for a cooler effect */
+  filter: contrast(1.2); /* Boosts vibrancy */
+}
+
+.task-btn {
+  position: absolute;
+  top: 60%; /* Slightly below center */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #FFFEF6;
+  font-size: 24px;
+  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.2); /* Transparent white */
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  z-index: 1; /* Ensures it’s above the animation */
+}
+
+.task-btn:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  color: #FF6200;
+}
+
+.bg-tasks {
+  background: linear-gradient(to bottom, #1E90FF, #000033); /* Space-like gradient */
+  color: #FFFEF6;
+}
 .navbar a.nav-link {
   color: #FFFEF6 !important;
 }
