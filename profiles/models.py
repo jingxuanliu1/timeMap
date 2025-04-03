@@ -1,0 +1,14 @@
+from django.db import models
+
+# Create your models here.
+from django.db import models
+from django.contrib.auth.models import User
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    gmail = models.EmailField(unique=True, help_text="Please use a Gmail address.")
+    phone_number = models.CharField(max_length=15, blank=True, null=True, help_text="Your phone number (e.g., +1234567890).")
+    social_media = models.CharField(max_length=100, blank=True, null=True, help_text="Your social media handle (e.g., @username).")
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
