@@ -14,11 +14,14 @@ def index(request):
 def create_task(request):
     if request.method == 'POST':
         form = TaskForm(request.POST)
+        print('first one')
         if form.is_valid():
+            print('second one')
             task = form.save(commit=False)
             task.user = request.user  # Assign the task to the current user
             task.save()
             return redirect('tasks:index')  # Redirect to the task list
+        else: print('I RAN',form.errors)
     else:
         form = TaskForm()
     return render(request, 'tasks/create_task.html', {'form': form})
