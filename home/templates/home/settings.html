@@ -2,8 +2,42 @@
 {% block content %}
 <div class="p-3">
   <div class="container">
-    <h1>{{ template_data.title }}</h1>
-    <p>Placeholder page for settings.</p>
+    <div class="row mt-3">
+      <div class="col-md-8 mx-auto mb-3">
+        <h2>{{ template_data.title }}</h2>
+        <hr />
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <!-- Settings Navigation (can expand later) -->
+        <ul class="nav nav-tabs mb-3">
+          <li class="nav-item">
+            <a class="nav-link active" href="#profile" data-bs-toggle="tab">Profile</a>
+          </li>
+          <!-- Add more tabs here in the future, e.g., Account, Notifications -->
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+          <!-- Profile Section -->
+          <div class="tab-pane fade show active" id="profile">
+            <h4>Profile Settings</h4>
+            <p>Update your contact information below.</p>
+            <form method="post">
+              {% csrf_token %}
+              {{ template_data.profile_form.as_p }}
+              <button type="submit" name="profile_submit" class="btn btn-success">Save Profile</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock content %}

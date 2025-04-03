@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col-md-12 mx-auto mb-3">
+        <h2>{{ template_data.title }}</h2>
+        {% if request.user.is_authenticated %}
+          <p>Tasks for: {{ template_data.gmail }}</p>
+        {% endif %}
+        <hr />
+        {% if request.user.is_authenticated %}
+          {% if template_data.tasks %}
+            <ul class="list-group">
+              {% for task in template_data.tasks %}
+                <li class="list-group-item {% if task.completed %}text-muted{% endif %}">
+                  <strong>{{ task.title }}</strong>
+                  {% if task.description %} - {{ task.description }}{% endif %}
+                  <br>
+                  <small>
+                    Priority: {{ task.priority }} |
+                    Due: {% if task.due_date %}{{ task.due_date|date:"M d, Y H:i" }}{% else %}No due date{% endif %} |
+                    Status: {% if task.completed %}Completed{% else %}Pending{% endif %}
+                  </small>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>No tasks yet. Start adding some!</p>
+          {% endif %}
+        {% else %}
+          <p>Please <a href="{% url 'login' %}">log in</a> to view your tasks.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
