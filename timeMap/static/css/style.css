@@ -57,7 +57,7 @@ body {
   font-size: 13px;
 }
 .ms-footer a:hover {
-  color: #6ab43e;
+  color: #2946d5;
   text-decoration: none;
 }
 .ms-footer-bottom span{
@@ -65,7 +65,7 @@ body {
   line-height: 38px;
 }
 .ms-footer-bottom a {
-  color: #6ab43e;
+  color: #2946d5;
   text-decoration: none;
 }
 .ms-footer-bottom a:hover {
@@ -103,7 +103,7 @@ body {
 }
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(5, 5, 5, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-  width: 1.8em; /* Make icon slightly larger */
+  width: 1.8em;
   height: 1.8em;
 }
 .navbar-toggler:hover {
