@@ -8,4 +8,5 @@ urlpatterns = [
     path('friends', views.friends, name='home.friends'),
     path("leaderboard", views.leaderboard, name='home.leaderboard'),
     path('settings', views.settings, name='home.settings'),
+
 ]
