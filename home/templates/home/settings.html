@@ -15,12 +15,11 @@
           {% endfor %}
         {% endif %}
 
-        <!-- Settings Navigation (can expand later) -->
+        <!-- Settings Navigation -->
         <ul class="nav nav-tabs mb-3">
           <li class="nav-item">
             <a class="nav-link active" href="#profile" data-bs-toggle="tab">Profile</a>
           </li>
-          <!-- Add more tabs here in the future, e.g., Account, Notifications -->
         </ul>
 
         <!-- Tab Content -->
@@ -28,10 +27,16 @@
           <!-- Profile Section -->
           <div class="tab-pane fade show active" id="profile">
             <h4>Profile Settings</h4>
-            <p>Update your contact information below.</p>
-            <form method="post">
+            <p>Update your contact information and personal details below.</p>
+            <form method="post" enctype="multipart/form-data">
               {% csrf_token %}
               {{ template_data.profile_form.as_p }}
+              {% if template_data.profile_form.instance.profile_image %}
+                <div class="mb-3">
+                  <label>Current Profile Image:</label><br>
+                  <img src="{{ template_data.profile_form.instance.profile_image.url }}" alt="Profile Image" style="max-width: 200px; height: auto;">
+                </div>
+              {% endif %}
               <button type="submit" name="profile_submit" class="btn btn-success">Save Profile</button>
             </form>
           </div>

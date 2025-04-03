@@ -23,18 +23,23 @@ class CustomSetPasswordForm(SetPasswordForm):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['gmail', 'phone_number', 'social_media']
+        fields = ['gmail', 'phone_number', 'social_media', 'profile_image', 'bio']
         widgets = {
             'gmail': forms.TextInput(attrs={'readonly': 'readonly'}),
+            'bio': forms.Textarea(attrs={'rows': 4, 'maxlength': 500}),
         }
         labels = {
             'gmail': 'Gmail Address',
             'phone_number': 'Phone Number',
             'social_media': 'Social Media Handle',
+            'profile_image': 'Profile Image',
+            'bio': 'Bio',
         }
         help_texts = {
             'phone_number': 'Enter your phone number (e.g., +1234567890).',
             'social_media': 'Enter your social media handle (e.g., @username).',
+            'profile_image': 'Upload your profile picture.',
+            'bio': 'A short introduction about yourself (max 500 characters).',
         }
 
     def __init__(self, *args, **kwargs):
@@ -53,3 +58,9 @@ class UserProfileForm(forms.ModelForm):
         if social and not social.startswith('@'):
             raise forms.ValidationError("Social media handle should start with '@' (e.g., @username).")
         return social
+
+    def clean_profile_image(self):
+        image = self.cleaned_data.get('profile_image')
+        if image and image.size > 5 * 1024 * 1024:  # Limit to 5MB
+            raise forms.ValidationError("Image file size must be under 5MB.")
+        return image
