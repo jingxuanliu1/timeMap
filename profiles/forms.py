@@ -1,6 +1,33 @@
 from django import forms
-from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
+from django.contrib.auth.models import User
 from .models import UserProfile
+
+
+class CustomUserCreationForm(UserCreationForm):
+    gmail = forms.EmailField(label="Gmail Address", help_text="Please enter your Gmail address.")
+
+    class Meta:
+        model = User
+        fields = ('username', 'gmail', 'password1', 'password2')
+
+    def clean_gmail(self):
+        gmail = self.cleaned_data['gmail']
+        if not gmail.endswith('@gmail.com'):
+            raise forms.ValidationError("Please use a Gmail address (e.g., example@gmail.com).")
+        if UserProfile.objects.filter(gmail=gmail).exists():
+            raise forms.ValidationError("This Gmail address is already in use.")
+        return gmail
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            UserProfile.objects.create(
+                user=user,
+                gmail=self.cleaned_data['gmail']
+            )
+        return user
+
 
 class CustomSetPasswordForm(SetPasswordForm):
     gmail = forms.EmailField(label="Gmail Address", help_text="Please enter your Gmail address.")
@@ -9,16 +36,20 @@ class CustomSetPasswordForm(SetPasswordForm):
         gmail = self.cleaned_data['gmail']
         if not gmail.endswith('@gmail.com'):
             raise forms.ValidationError("Please use a Gmail address (e.g., example@gmail.com).")
+        if UserProfile.objects.filter(gmail=gmail).exists():
+            raise forms.ValidationError("This Gmail address is already in use.")
         return gmail
 
     def save(self, commit=True):
         user = super().save(commit=commit)
         gmail = self.cleaned_data['gmail']
-        UserProfile.objects.update_or_create(
-            user=user,
-            defaults={'gmail': gmail}
-        )
+        if commit:
+            UserProfile.objects.update_or_create(
+                user=user,
+                defaults={'gmail': gmail}
+            )
         return user
+
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -64,3 +95,10 @@ class UserProfileForm(forms.ModelForm):
         if image and image.size > 5 * 1024 * 1024:  # Limit to 5MB
             raise forms.ValidationError("Image file size must be under 5MB.")
         return image
+
+    def clean_gmail(self):
+        # Since gmail is readonly, ensure it’s not changed via form tampering
+        gmail = self.cleaned_data.get('gmail')
+        if self.instance and self.instance.pk and gmail != self.instance.gmail:
+            raise forms.ValidationError("Gmail address cannot be changed here.")
+        return gmail

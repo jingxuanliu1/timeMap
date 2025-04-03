@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from profiles.models import UserProfile
 from profiles.forms import UserProfileForm
-
+from profiles.forms import UserProfileForm, CustomUserCreationForm
 
 def index(request):
     template_data = {}
