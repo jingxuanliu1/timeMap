@@ -1,10 +1,153 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+<div class="container mt-4">
   <h2>Create New Task</h2>
-  <form method="POST">
+  <form method="POST" id="task-form">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save Task</button>
+    {% for field in form %}
+      {% if field.name != 'location' and field.name != 'latitude' and field.name != 'longitude' %}
+        <div class="mb-3">
+          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="text-danger">
+              {{ field.errors }}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    <div class="mb-3">
+      <label for="location-input" class="form-label">Location</label>
+      <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter location">
+      <input type="hidden" id="id_latitude" name="latitude">
+      <input type="hidden" id="id_longitude" name="longitude">
+    </div>
+    <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
+    <button type="submit" class="btn btn-primary">Save Task</button>
   </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Load the Google Maps JavaScript API asynchronously
+  function loadGoogleMapsAPI() {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = reject;
+      script.onload = resolve;
+      document.head.appendChild(script);
+    });
+  }
+
+  let map;
+  let marker;
+  let geocoder;
+  let autocomplete;
+
+  // Initialize the map
+  function initMap() {
+    // Initialize the map
+    map = new google.maps.Map(document.getElementById('map'), {
+      center: { lat: 40.7128, lng: -74.0060 }, // Default to New York City
+      zoom: 12
+    });
+
+    geocoder = new google.maps.Geocoder();
+    
+    // Initialize the marker using the standard Marker class
+    marker = new google.maps.Marker({
+      map: map,
+      draggable: true
+    });
+
+    // Initialize the autocomplete
+    const input = document.getElementById('location-input');
+    autocomplete = new google.maps.places.Autocomplete(input, {
+      types: ['geocode'],
+      componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
+    });
+    
+    // Bind the autocomplete to the map
+    autocomplete.bindTo('bounds', map);
+    
+    // Add a listener for when a place is selected
+    autocomplete.addListener('place_changed', function() {
+      const place = autocomplete.getPlace();
+      
+      if (place.geometry) {
+        // Set the map center and zoom to the selected place
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
+        
+        // Update the marker position
+        marker.setPosition(place.geometry.location);
+        
+        // Update the hidden fields with the coordinates
+        updateCoordinates(place.geometry.location);
+      } else {
+        console.log("No details available for input: '" + place.name + "'");
+      }
+    });
+
+    // Handle marker drag
+    marker.addListener('dragend', function() {
+      updateCoordinates(marker.getPosition());
+      reverseGeocode(marker.getPosition());
+    });
+
+    // Add a listener for when the user stops typing in the location field
+    input.addEventListener('blur', function() {
+      // If the input has a value but no place was selected from autocomplete
+      if (input.value && !marker.getPosition()) {
+        geocodeAddress(input.value);
+      }
+    });
+  }
+
+  // Function to geocode an address and update the map
+  function geocodeAddress(address) {
+    geocoder.geocode({ address: address }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        // Set the map center and zoom to the geocoded location
+        map.setCenter(results[0].geometry.location);
+        map.setZoom(15);
+        
+        // Update the marker position
+        marker.setPosition(results[0].geometry.location);
+        
+        // Update the hidden fields with the coordinates
+        updateCoordinates(results[0].geometry.location);
+      } else {
+        console.log('Geocode was not successful for the following reason: ' + status);
+      }
+    });
+  }
+
+  function updateCoordinates(location) {
+    document.getElementById('id_latitude').value = location.lat();
+    document.getElementById('id_longitude').value = location.lng();
+  }
+
+  function reverseGeocode(location) {
+    geocoder.geocode({ location: location }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        document.getElementById('location-input').value = results[0].formatted_address;
+      }
+    });
+  }
+
+  // Load the Google Maps API when the page loads
+  window.addEventListener('load', function() {
+    loadGoogleMapsAPI().catch(error => {
+      console.error('Error loading Google Maps API:', error);
+    });
+  });
+</script>
 {% endblock %}

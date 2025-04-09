@@ -8,7 +8,17 @@ class TaskForm(forms.ModelForm):
     end_time = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={"type": "datetime-local"})
     )
+    latitude = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    longitude = forms.FloatField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Task
-        fields = ['title', 'description', 'location', 'start_time', 'end_time', 'completed']
+        widgets = {
+            'location': forms.TextInput(attrs={
+                'id': 'location-input',
+                'class': 'form-control',
+                'placeholder': 'Enter location'
+            })
+        }
+        fields = ['title', 'description', 'location', 'start_time', 'end_time', 'completed', 'latitude', 'longitude']
+

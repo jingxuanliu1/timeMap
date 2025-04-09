@@ -6,6 +6,8 @@ class Task(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     location = models.CharField(max_length=255, blank=True)  # Class location or any place
+    latitude = models.FloatField(null=True, blank=True)  # Latitude coordinate
+    longitude = models.FloatField(null=True, blank=True)  # Longitude coordinate
     start_time = models.DateTimeField()  # When the task starts
     end_time = models.DateTimeField()  # When the task should end
     completed = models.BooleanField(default=False)

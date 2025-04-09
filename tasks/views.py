@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from .models import Task
 from .forms import TaskForm
 
@@ -14,17 +15,20 @@ def index(request):
 def create_task(request):
     if request.method == 'POST':
         form = TaskForm(request.POST)
-        print('first one')
         if form.is_valid():
-            print('second one')
             task = form.save(commit=False)
             task.user = request.user  # Assign the task to the current user
+            # Explicitly set latitude and longitude from form data
+            task.latitude = form.cleaned_data.get('latitude')
+            task.longitude = form.cleaned_data.get('longitude')
             task.save()
             return redirect('tasks:index')  # Redirect to the task list
-        else: print('I RAN',form.errors)
     else:
         form = TaskForm()
-    return render(request, 'tasks/create_task.html', {'form': form})
+    return render(request, 'tasks/create_task.html', {
+        'form': form,
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+    })
 
 # View to update an existing task
 @login_required
@@ -33,11 +37,19 @@ def update_task(request, task_id):
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
-            form.save()
+            task = form.save(commit=False)
+            # Explicitly set latitude and longitude from form data
+            task.latitude = form.cleaned_data.get('latitude')
+            task.longitude = form.cleaned_data.get('longitude')
+            task.save()
             return redirect('tasks:index')
     else:
         form = TaskForm(instance=task)
-    return render(request, 'tasks/update_task.html', {'form': form, 'task': task})
+    return render(request, 'tasks/update_task.html', {
+        'form': form,
+        'task': task,
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+    })
 
 # View to delete a task
 @login_required
