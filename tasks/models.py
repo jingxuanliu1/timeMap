@@ -1,17 +1,26 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import User
 
 class Task(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    priority = models.IntegerField(default=1)  # e.g., 1 = Low, 2 = Medium, 3 = High
-    created_at = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateTimeField(null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='tasks')  # Link to the user
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    location = models.CharField(max_length=255, blank=True)  # Class location or any place
+    latitude = models.FloatField(null=True, blank=True)  # Latitude coordinate
+    longitude = models.FloatField(null=True, blank=True)  # Longitude coordinate
+    start_time = models.DateTimeField()  # When the task starts
+    end_time = models.DateTimeField()  # When the task should end
     completed = models.BooleanField(default=False)
+    travel_time = models.DurationField(null=True, blank=True)  # How long it takes to travel there
+
+    def __str__(self):
+        return f"{self.title} - {self.start_time}"
+
+    def get_travel_time(self):
+        return self.travel_time if self.travel_time else "Not calculated"
+
+    class Meta:
+        ordering = ['start_time']
 
     def __str__(self):
         return self.title
