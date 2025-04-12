@@ -35,7 +35,7 @@
                     <!-- Friend Action Buttons -->
                     {% if not is_own_profile %}
                         <div class="mt-3">
-                            {% if friendship_status == 'accepted' %}
+                            {% if is_friend %}
                                 <form method="post" action="{% url 'profiles:remove_friend' profile_user.username %}">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-danger">
@@ -48,13 +48,13 @@
                                 </button>
                             {% elif friendship_status == 'request_received' %}
                                 <div class="btn-group">
-                                    <form method="post" action="{% url 'profiles:respond_friend_request' Friendship.objects.get(from_user=profile,to_user=request.user.userprofile).id 'accept' %}">
+                                    <form method="post" action="{% url 'profiles:respond_friend_request' request_id 'accept' %}">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-success">
                                             <i class="fas fa-check"></i> Accept
                                         </button>
                                     </form>
-                                    <form method="post" action="{% url 'profiles:respond_friend_request' Friendship.objects.get(from_user=profile,to_user=request.user.userprofile).id 'reject' %}">
+                                    <form method="post" action="{% url 'profiles:respond_friend_request' request_id 'reject' %}">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-outline-danger">
                                             <i class="fas fa-times"></i> Decline

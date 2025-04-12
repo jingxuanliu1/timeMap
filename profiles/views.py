@@ -34,30 +34,42 @@ def profile_view(request, username):
     profile = user.userprofile
     is_own_profile = (request.user == user)
 
-    # Friendship status
     friendship_status = None
-    if not is_own_profile:
-        friendship = Friendship.objects.filter(
-            from_user=request.user.userprofile,
-            to_user=profile
-        ).first()
+    request_id = None
+    is_friend = False
 
-        if friendship:
-            friendship_status = 'accepted' if friendship.accepted else 'pending'
+    if not is_own_profile:
+        current_profile = request.user.userprofile
+
+        # Check friendship status
+        if current_profile.is_friends_with(profile):
+            friendship_status = 'accepted'
+            is_friend = True
         else:
-            # Check if they sent you a request
-            reverse_friendship = Friendship.objects.filter(
-                from_user=profile,
-                to_user=request.user.userprofile
+            # Check for pending requests
+            outgoing_request = Friendship.objects.filter(
+                from_user=current_profile,
+                to_user=profile
             ).first()
-            if reverse_friendship:
+
+            incoming_request = Friendship.objects.filter(
+                from_user=profile,
+                to_user=current_profile
+            ).first()
+
+            if outgoing_request:
+                friendship_status = 'pending'
+            elif incoming_request:
                 friendship_status = 'request_received'
+                request_id = incoming_request.id
 
     return render(request, 'profiles/profile.html', {
         'profile_user': user,
         'profile': profile,
         'is_own_profile': is_own_profile,
-        'friendship_status': friendship_status
+        'friendship_status': friendship_status,
+        'request_id': request_id,
+        'is_friend': is_friend
     })
 
 
@@ -65,16 +77,13 @@ def profile_view(request, username):
 def friend_list(request):
     profile = request.user.userprofile
     friends = profile.get_friends()
-    pending_requests = profile.get_pending_requests()
-    sent_requests = Friendship.objects.filter(
-        from_user=profile,
-        accepted=False
-    )
+    pending_requests_received = profile.get_pending_requests_received()
+    pending_requests_sent = profile.get_pending_requests_sent()
 
     return render(request, 'profiles/friend_list.html', {
         'friends': friends,
-        'pending_requests': pending_requests,
-        'sent_requests': sent_requests
+        'pending_requests': pending_requests_received,
+        'sent_requests': pending_requests_sent
     })
 
 
@@ -82,21 +91,23 @@ def friend_list(request):
 def send_friend_request(request, username):
     if request.method == 'POST':
         to_user = get_object_or_404(UserProfile, user__username=username)
+        from_user = request.user.userprofile
 
-        if request.user.userprofile == to_user:
+        if from_user == to_user:
             messages.error(request, "You cannot send a friend request to yourself.")
-        elif Friendship.objects.filter(from_user=request.user.userprofile, to_user=to_user).exists():
+        elif Friendship.objects.filter(from_user=from_user, to_user=to_user).exists():
             messages.warning(request, "Friend request already sent.")
+        elif Friendship.objects.filter(from_user=to_user, to_user=from_user).exists():
+            # If they already sent you a request, accept it
+            friendship = Friendship.objects.get(from_user=to_user, to_user=from_user)
+            friendship.accepted = True
+            friendship.save()
+            messages.success(request, f"You are now friends with {username}!")
         else:
-            Friendship.objects.create(
-                from_user=request.user.userprofile,
-                to_user=to_user
-            )
+            Friendship.objects.create(from_user=from_user, to_user=to_user)
             messages.success(request, f"Friend request sent to {username}!")
 
-        return redirect('profiles:profile', username=username)
-    else:
-        return redirect('home.index')
+    return redirect('profiles:profile', username=username)
 
 
 @login_required
@@ -116,28 +127,31 @@ def respond_friend_request(request, request_id, action):
             friend_request.delete()
             messages.info(request, "Friend request declined.")
 
-        return redirect('profiles:friend_list')
-    else:
-        return redirect('home.index')
+    return redirect('profiles:friend_list')
 
 
 @login_required
 def remove_friend(request, username):
     if request.method == 'POST':
         friend_profile = get_object_or_404(UserProfile, user__username=username)
+        current_profile = request.user.userprofile
 
         # Delete friendship in both directions
         Friendship.objects.filter(
-            from_user=request.user.userprofile,
+            from_user=current_profile,
             to_user=friend_profile
         ).delete()
 
         Friendship.objects.filter(
             from_user=friend_profile,
-            to_user=request.user.userprofile
+            to_user=current_profile
         ).delete()
 
         messages.success(request, f"{username} has been removed from your friends.")
-        return redirect('profiles:friend_list')
-    else:
-        return redirect('home.index')
+
+    return redirect('profiles:friend_list')
+
+
+@login_required
+def current_user_profile(request):
+    return redirect('profiles:profile', username=request.user.username)
