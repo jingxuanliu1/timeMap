@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ title }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    {% if profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}"
+                             class="img-fluid rounded-circle mb-3"
+                             alt="Profile Image">
+                    {% else %}
+                        <div class="bg-light p-5 text-center rounded-circle mb-3">
+                            <i class="fas fa-user fa-5x text-secondary"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <h3>{{ user.username }}</h3>
+                    <hr>
+
+                    <div class="mb-3">
+                        <h5>Contact Information</h5>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                        <p><strong>Gmail:</strong> {{ profile.gmail }}</p>
+                        {% if profile.phone_number %}
+                            <p><strong>Phone:</strong> {{ profile.phone_number }}</p>
+                        {% endif %}
+                    </div>
+
+                    {% if profile.social_media %}
+                    <div class="mb-3">
+                        <h5>Social Media</h5>
+                        <p>{{ profile.social_media }}</p>
+                    </div>
+                    {% endif %}
+
+                    {% if profile.bio %}
+                    <div class="mb-3">
+                        <h5>About Me</h5>
+                        <p>{{ profile.bio|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <a href="{% url 'profiles:settings' %}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

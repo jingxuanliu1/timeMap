@@ -28,4 +28,18 @@ def profile_settings(request):
 
 @login_required
 def profile(request):
-    return render(request, 'profiles/profile.html', {'title': 'Your Profile'})
+    try:
+        profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        # Create profile if it doesn't exist
+        profile = UserProfile.objects.create(
+            user=request.user,
+            gmail=request.user.email or ''
+        )
+
+    context = {
+        'title': 'Your Profile',
+        'user': request.user,  # Pass the user object
+        'profile': profile  # Pass the profile object
+    }
+    return render(request, 'profiles/profile.html', context)
