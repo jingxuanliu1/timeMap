@@ -31,15 +31,11 @@ def profile(request):
     try:
         profile = request.user.userprofile
     except UserProfile.DoesNotExist:
-        # Create profile if it doesn't exist
-        profile = UserProfile.objects.create(
-            user=request.user,
-            gmail=request.user.email or ''
-        )
+        profile = UserProfile.objects.create(user=request.user, gmail=request.user.email or '')
 
     context = {
         'title': 'Your Profile',
-        'user': request.user,  # Pass the user object
-        'profile': profile  # Pass the profile object
+        'user': request.user,  # Make sure user is passed
+        'profile': profile  # Make sure profile is passed
     }
     return render(request, 'profiles/profile.html', context)
