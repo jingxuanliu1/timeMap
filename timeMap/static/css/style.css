@@ -1,3 +1,6 @@
+body {
+  font-family: 'Roboto Mono', monospace;
+}
 .bg-index {
   overflow: hidden;
   position: relative;
@@ -10,7 +13,7 @@
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  opacity: 0.8;
+  opacity: 0.85;
   filter: contrast(1.2);
 }
 .task-btn {
@@ -18,11 +21,12 @@
   top: 80%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #c907f4;
+  color: #0e248e;
   font-size: 40px;
   font-family: 'Roboto Mono', monospace;
   font-weight: 300;
   text-decoration: none;
+  min-width: max-content;
   background-color: rgba(255, 255, 255, 0.2);
   padding: 10px 20px;
   border-radius: 5px;
@@ -53,7 +57,7 @@
   font-size: 13px;
 }
 .ms-footer a:hover {
-  color: #6ab43e;
+  color: #2946d5;
   text-decoration: none;
 }
 .ms-footer-bottom span{
@@ -61,7 +65,7 @@
   line-height: 38px;
 }
 .ms-footer-bottom a {
-  color: #6ab43e;
+  color: #2946d5;
   text-decoration: none;
 }
 .ms-footer-bottom a:hover {
@@ -78,6 +82,7 @@
     font-size: 18px;
     font-family: 'Roboto Mono', monospace;
     color: #1E90FF !important;
+    min-width: max-content;
 }
 .ms-footer-bottom span {
   color: #404040;
@@ -91,4 +96,23 @@
 }
 .navbar-nav .nav-link .btn-link:hover {
     color: #050505 !important;
+}
+.navbar-toggler {
+  border: 2px #f6f6f6;
+  padding: 0.5rem 0.75rem;
+}
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(5, 5, 5, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  width: 1.8em;
+  height: 1.8em;
+}
+.navbar-toggler:hover {
+  border-color: #1E90FF;
+}
+.navbar-toggler:hover .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(30, 144, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+.navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 0, 0, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M6 6L24 24M6 24L24 6'/%3e%3c/svg%3e");
+  transition: transform 0.3s ease;
 }
