@@ -63,10 +63,25 @@ def profile_view(request, username):
 @login_required
 def friend_list(request):
     profile = request.user.userprofile
+    query = request.GET.get('q', '')
+    search_results = None
+
+    if query:
+        search_results = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(email__icontains=query) |
+            Q(userprofile__gmail__icontains=query)
+        ).exclude(id=request.user.id).select_related('userprofile')
+
+    # Convert UserProfile objects to User objects for the friends list
+    friends_users = [friendship.user for friendship in profile.get_friends()]
+
     return render(request, 'profiles/friend_list.html', {
-        'friends': profile.get_friends(),
+        'friends': friends_users,  # Now passing User objects instead of UserProfile
         'pending_requests': profile.get_pending_requests_received(),
-        'sent_requests': profile.get_pending_requests_sent()
+        'sent_requests': profile.get_pending_requests_sent(),
+        'search_results': search_results,
+        'query': query
     })
 
 

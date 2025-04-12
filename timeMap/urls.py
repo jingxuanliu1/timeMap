@@ -5,15 +5,13 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('home.urls')),
-    path('tasks/', include('tasks.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('profiles/', include('profiles.urls')),
+    path('', include('home.urls')),  # Home app URLs
+    path('tasks/', include('tasks.urls')),  # Tasks app URLs
+    path('accounts/', include('django.contrib.auth.urls')),  # Authentication URLs
+    path('profiles/', include('profiles.urls')),  # Profiles app URLs
 ]
 
+# Static and media files in development
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

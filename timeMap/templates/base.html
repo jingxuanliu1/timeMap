@@ -43,7 +43,9 @@
             <a class="nav-link" href="{% url 'home.about' %}">About</a>
             <a class="nav-link" href="{% url 'tasks.index' %}">Tasks</a>
             {% if user.is_authenticated %}
-              <a class="nav-link" href="{% url 'home.friends' %}">Friends</a>
+              <a class="nav-link" href="{% url 'profiles:friend_list' %}">
+                <i class="fas fa-user-friends me-2"></i>Friends
+              </a>
               <a class="nav-link" href="{% url 'home.leaderboard' %}">Leaderboard</a>
 
               <!-- Settings Dropdown -->
