@@ -103,12 +103,16 @@
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span class="text-white">© Copyright - 2025</span>
-            <!-- Debug: Check if user is authenticated -->
+            <!-- Debug: Check if user is authenticated and URL resolution -->
             <span class="text-white" style="margin-left: 18px;">
               Debug: Authenticated={{ user.is_authenticated }}
             </span>
             {% if user.is_authenticated %}
-              <a class="nav-link text-white" href="{% url 'profiles:settings' %}" style="margin-left: 18px;">Settings</a>
+              {% try %}
+                <a class="nav-link text-white" href="{% url 'profiles:settings' %}" style="margin-left: 18px;">Settings</a>
+              {% except %}
+                <span class="text-white" style="margin-left: 18px;">Error: Could not resolve 'profiles:settings'</span>
+              {% endtry %}
             {% else %}
               <span class="text-white" style="margin-left: 18px;">Not Authenticated</span>
             {% endif %}
