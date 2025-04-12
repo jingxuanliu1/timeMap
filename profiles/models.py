@@ -4,9 +4,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    gmail = models.EmailField(unique=True, help_text="Please use a Gmail address.")
+    gmail = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     social_media = models.CharField(max_length=100, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
@@ -17,43 +18,45 @@ class UserProfile(models.Model):
 
     def get_friends(self):
         """Returns all accepted friends"""
-        # Friends where you accepted their request
-        friends1 = UserProfile.objects.filter(
-            friendship_received__from_user=self,
-            friendship_received__accepted=True
-        )
-        # Friends where they accepted your request
-        friends2 = UserProfile.objects.filter(
-            friendship_sent__to_user=self,
-            friendship_sent__accepted=True
-        )
-        return friends1.union(friends2).distinct()
+        return UserProfile.objects.filter(
+            Q(friendship_received__from_user=self, friendship_received__accepted=True) |
+            Q(friendship_sent__to_user=self, friendship_sent__accepted=True)
+        ).distinct()
 
     def get_pending_requests_received(self):
-        """Returns pending friend requests you've received"""
+        """Returns pending friend requests received"""
         return Friendship.objects.filter(
             to_user=self,
             accepted=False
         )
 
     def get_pending_requests_sent(self):
-        """Returns pending friend requests you've sent"""
+        """Returns pending friend requests sent"""
         return Friendship.objects.filter(
             from_user=self,
             accepted=False
         )
 
     def is_friends_with(self, other_profile):
-        """Check if this user is friends with another profile"""
-        return (Friendship.objects.filter(
-            from_user=self,
-            to_user=other_profile,
-            accepted=True
-        ).exists() or Friendship.objects.filter(
-            from_user=other_profile,
-            to_user=self,
-            accepted=True
-        ).exists())
+        """Check if friends with another user"""
+        return Friendship.objects.filter(
+            (Q(from_user=self) & Q(to_user=other_profile) & Q(accepted=True)) |
+            (Q(from_user=other_profile) & Q(to_user=self) & Q(accepted=True))
+        ).exists()
+
+    def get_friendship_status(self, other_profile):
+        """Returns friendship status between users"""
+        if self.is_friends_with(other_profile):
+            return 'friends'
+
+        if Friendship.objects.filter(from_user=self, to_user=other_profile).exists():
+            return 'request_sent'
+
+        if Friendship.objects.filter(from_user=other_profile, to_user=self).exists():
+            return 'request_received'
+
+        return None
+
 
 class Friendship(models.Model):
     from_user = models.ForeignKey(
@@ -71,8 +74,6 @@ class Friendship(models.Model):
 
     class Meta:
         unique_together = ('from_user', 'to_user')
-        verbose_name = 'Friendship'
-        verbose_name_plural = 'Friendships'
 
     def __str__(self):
         return f"{self.from_user} → {self.to_user} ({'Accepted' if self.accepted else 'Pending'})"
@@ -82,10 +83,12 @@ class Friendship(models.Model):
             raise ValidationError("Users cannot be friends with themselves.")
         super().save(*args, **kwargs)
 
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         UserProfile.objects.create(user=instance, gmail=instance.email or '')
+
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
