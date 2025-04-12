@@ -6,7 +6,7 @@
       <div class="col-md-12 mx-auto mb-3">
         <h2>{{ template_data.title }}</h2>
         {% if request.user.is_authenticated %}
-          <p>Tasks for: {{ template_data.gmail }}</p>
+          <p>Tasks for: {{ request.user.userprofile.gmail|default:request.user.username }}</p>
         {% endif %}
         <hr />
         {% if request.user.is_authenticated %}
@@ -35,4 +35,4 @@
     </div>
   </div>
 </div>
-{% endblock content %}
+{% endblock %}

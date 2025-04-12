@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col-md-8 mx-auto mb-3">
+        <h2>{{ title }}</h2>
+        <hr>
+        {% if user.userprofile.profile_image %}
+          <img src="{{ user.userprofile.profile_image.url }}" alt="Profile Image" style="max-width: 200px; height: auto; margin-bottom: 1rem;">
+        {% endif %}
+        <p><strong>Gmail:</strong> {{ user.userprofile.gmail|default:"Not set" }}</p>
+        <p><strong>Phone:</strong> {{ user.userprofile.phone_number|default:"Not set" }}</p>
+        <p><strong>Social Media:</strong> {{ user.userprofile.social_media|default:"Not set" }}</p>
+        <p><strong>Bio:</strong> {{ user.userprofile.bio|default:"Not set" }}</p>
+        <a href="{% url 'profiles:settings' %}" class="btn btn-primary">Edit Profile</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
