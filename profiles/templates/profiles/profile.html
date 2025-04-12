@@ -2,55 +2,127 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header">
-            <h2>Your Profile</h2>
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="fas fa-user-circle me-2"></i>
+                    {{ profile_user.username }}'s Profile
+                </h2>
+                {% if is_own_profile %}
+                    <a href="{% url 'profiles:settings' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </a>
+                {% endif %}
+            </div>
         </div>
+
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
+                <!-- Profile Image Column -->
+                <div class="col-md-4 text-center">
                     {% if profile.profile_image %}
                         <img src="{{ profile.profile_image.url }}"
-                             class="img-fluid rounded-circle mb-3"
+                             class="img-thumbnail rounded-circle mb-3"
+                             width="200"
                              alt="Profile Image">
                     {% else %}
-                        <div class="bg-light p-5 text-center rounded-circle mb-3">
-                            <i class="fas fa-user fa-5x text-secondary"></i>
+                        <div class="bg-light p-4 rounded-circle d-inline-block mb-3">
+                            <i class="fas fa-user fa-5x text-muted"></i>
+                        </div>
+                    {% endif %}
+
+                    <!-- Friend Action Buttons -->
+                    {% if not is_own_profile %}
+                        <div class="mt-3">
+                            {% if friendship_status == 'accepted' %}
+                                <form method="post" action="{% url 'profiles:remove_friend' profile_user.username %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-user-minus"></i> Remove Friend
+                                    </button>
+                                </form>
+                            {% elif friendship_status == 'pending' %}
+                                <button class="btn btn-secondary" disabled>
+                                    <i class="fas fa-clock"></i> Request Sent
+                                </button>
+                            {% elif friendship_status == 'request_received' %}
+                                <div class="btn-group">
+                                    <form method="post" action="{% url 'profiles:respond_friend_request' Friendship.objects.get(from_user=profile,to_user=request.user.userprofile).id 'accept' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-check"></i> Accept
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'profiles:respond_friend_request' Friendship.objects.get(from_user=profile,to_user=request.user.userprofile).id 'reject' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger">
+                                            <i class="fas fa-times"></i> Decline
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <form method="post" action="{% url 'profiles:send_friend_request' profile_user.username %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-user-plus"></i> Add Friend
+                                    </button>
+                                </form>
+                            {% endif %}
                         </div>
                     {% endif %}
                 </div>
+
+                <!-- Profile Details Column -->
                 <div class="col-md-8">
-                    <h3>{{ user.username }}</h3>
-                    <hr>
+                    <!-- Contact Information -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-id-card me-2"></i> Contact Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-3">Email:</dt>
+                                <dd class="col-sm-9">{{ profile_user.email }}</dd>
 
-                    <div class="mb-3">
-                        <h5>Contact Information</h5>
-                        <p><strong>Email:</strong> {{ user.email }}</p>
-                        <p><strong>Gmail:</strong> {{ profile.gmail }}</p>
-                        {% if profile.phone_number %}
-                            <p><strong>Phone:</strong> {{ profile.phone_number }}</p>
-                        {% endif %}
+                                <dt class="col-sm-3">Gmail:</dt>
+                                <dd class="col-sm-9">{{ profile.gmail }}</dd>
+
+                                {% if profile.phone_number %}
+                                <dt class="col-sm-3">Phone:</dt>
+                                <dd class="col-sm-9">{{ profile.phone_number }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
                     </div>
 
+                    <!-- Social Media -->
                     {% if profile.social_media %}
-                    <div class="mb-3">
-                        <h5>Social Media</h5>
-                        <p>{{ profile.social_media }}</p>
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i> Social Media</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0">
+                                <a href="https://instagram.com/{{ profile.social_media|cut:'@' }}" target="_blank" class="text-decoration-none">
+                                    <i class="fab fa-instagram me-2"></i>{{ profile.social_media }}
+                                </a>
+                            </p>
+                        </div>
                     </div>
                     {% endif %}
 
+                    <!-- Bio -->
                     {% if profile.bio %}
-                    <div class="mb-3">
-                        <h5>About Me</h5>
-                        <p>{{ profile.bio|linebreaks }}</p>
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> About Me</h5>
+                        </div>
+                        <div class="card-body">
+                            {{ profile.bio|linebreaks }}
+                        </div>
                     </div>
                     {% endif %}
-
-                    <div class="mt-4">
-                        <a href="{% url 'profiles:settings' %}" class="btn btn-primary">
-                            <i class="fas fa-edit"></i> Edit Profile
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>
