@@ -8,7 +8,7 @@ from django.db.models import Q  # Added this import
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    gmail = models.EmailField(unique=True)
+    gmail = models.EmailField(max_length=255, blank=True, default='')
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     social_media = models.CharField(max_length=100, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)

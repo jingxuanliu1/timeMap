@@ -6,6 +6,7 @@
       <div class="col-md-12 mx-auto mb-3">
         <h2>{{ template_data.title }}</h2>
         {% if request.user.is_authenticated %}
+          <a href="{% url 'tasks:create_task' %}" class="btn btn-primary mb-3">Create New Task</a>
           <p>Tasks for: {{ request.user.userprofile.gmail|default:request.user.username }}</p>
         {% endif %}
         <hr />
@@ -22,11 +23,15 @@
                     Due: {% if task.due_date %}{{ task.due_date|date:"M d, Y H:i" }}{% else %}No due date{% endif %} |
                     Status: {% if task.completed %}Completed{% else %}Pending{% endif %}
                   </small>
+                  <div class="mt-2">
+                    <a href="{% url 'tasks:update_task' task.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'tasks:delete_task' task.id %}" class="btn btn-sm btn-danger">Delete</a>
+                  </div>
                 </li>
               {% endfor %}
             </ul>
           {% else %}
-            <p>No tasks yet. Start adding some!</p>
+            <p>No tasks yet. <a href="{% url 'tasks:create_task' %}">Start adding some!</a></p>
           {% endif %}
         {% else %}
           <p>Please <a href="{% url 'login' %}">log in</a> to view your tasks.</p>

@@ -48,3 +48,6 @@ def leaderboard(request):
         'title': 'Leaderboard',
     }
     return render(request, 'home/leaderboard.html', {'template_data': template_data})
+def settings(request):
+    # Your settings view logic here
+    return render(request, 'home/settings.html', {'title': 'Settings'})
