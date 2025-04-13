@@ -106,13 +106,131 @@ body {
   width: 1.8em;
   height: 1.8em;
 }
+
 .navbar-toggler:hover {
   border-color: #1E90FF;
 }
+
 .navbar-toggler:hover .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(30, 144, 255, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
+
 .navbar-toggler[aria-expanded="true"] .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 0, 0, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='3' d='M6 6L24 24M6 24L24 6'/%3e%3c/svg%3e");
   transition: transform 0.3s ease;
 }
+
+/* New Styles for Task Page */
+
+/* Style the "Today" header */
+h2.fw-bold {
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+/* Style the date bar */
+#date-bar div {
+  background-color: #e9ecef;
+  transition: background-color 0.3s ease;
+}
+
+#date-bar div.bg-primary {
+  background-color: #4a6aff !important;
+}
+
+/* Style the task cards */
+.bg-task {
+  background-color: #4a6aff !important;
+  border: none !important;
+  border-radius: 15px !important;
+}
+
+.task-list-container {
+  padding-bottom: 20px; /* Ensure space for the button */
+}
+
+/* Style the Add Task button */
+.add-task-footer {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 700px;
+  text-align: center;
+  z-index: 1000;
+}
+
+.add-task-btn {
+  background-color: #4a6aff !important;
+  border: none !important;
+  border-radius: 50px !important;
+  padding: 15px 30px !important;
+  font-size: 1.2rem !important;
+  font-weight: 500 !important;
+  width: 200px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.add-task-btn:hover {
+  background-color: #3b55cc !important;
+  transform: scale(1.05);
+}
+
+/* Style the calendar button */
+#calendar-btn {
+  background-color: #e9ecef;
+  border: none;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+#calendar-btn i {
+  font-size: 1.5rem;
+  color: #4a6aff;
+}
+
+#calendar-btn::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, #4a6aff, #3b55cc);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#calendar-btn:hover::before {
+  opacity: 0.2;
+}
+
+#calendar-btn:hover i {
+  color: #ffffff;
+}
+
+/* Ensure the date input is hidden but functional */
+#date-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Add hover effect for date boxes */
+#date-bar div:not(.bg-primary):hover {
+  background-color: #dee2e6 !important;
+  transition: background-color 0.2s ease;
+}
+
+/* Improve date text contrast */
+#date-bar div.bg-primary strong {
+  color: white !important;
+}
+
