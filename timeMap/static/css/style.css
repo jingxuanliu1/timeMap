@@ -152,9 +152,9 @@ h2.fw-bold {
 /* Style the Add Task button */
 .add-task-footer {
   position: fixed;
-  bottom: 20px;
+  bottom: 55px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-15%);
   width: 100%;
   max-width: 700px;
   text-align: center;

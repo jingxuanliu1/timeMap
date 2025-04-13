@@ -6,6 +6,8 @@
   <h2>Create New Task</h2>
   <form method="POST" id="task-form">
     {% csrf_token %}
+    <input type="hidden" name="selected_date" value="{{ selected_date }}">
+    <input type="hidden" name="start_date" value="{{ start_date }}">
     {% for field in form %}
       {% if field.name != 'location' and field.name != 'latitude' and field.name != 'longitude' %}
         <div class="mb-3">
@@ -24,7 +26,6 @@
       <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter location">
       <input type="hidden" id="id_latitude" name="latitude">
       <input type="hidden" id="id_longitude" name="longitude">
-      <input type="hidden" name="selected_date" value="{{ selected_date }}">
     </div>
     <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
     <button type="submit" class="btn btn-primary">Save Task</button>
@@ -34,7 +35,6 @@
 
 {% block extra_js %}
 <script>
-  // Load the Google Maps JavaScript API asynchronously
   function loadGoogleMapsAPI() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -47,84 +47,61 @@
     });
   }
 
-  let map;
-  let marker;
-  let geocoder;
-  let autocomplete;
+  let map, marker, geocoder, autocomplete;
 
-  // Initialize the map
   function initMap() {
-    // Initialize the map
     map = new google.maps.Map(document.getElementById('map'), {
-      center: { lat: 40.7128, lng: -74.0060 }, // Default to New York City
+      center: { lat: 40.7128, lng: -74.0060 },
       zoom: 12
     });
 
     geocoder = new google.maps.Geocoder();
-    
-    // Initialize the marker using the standard Marker class
     marker = new google.maps.Marker({
       map: map,
       draggable: true
     });
 
-    // Initialize the autocomplete
     const input = document.getElementById('location-input');
     autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['geocode'],
-      componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
+      componentRestrictions: { country: 'us' }
     });
-    
-    // Bind the autocomplete to the map
+
     autocomplete.bindTo('bounds', map);
-    
-    // Add a listener for when a place is selected
+
     autocomplete.addListener('place_changed', function() {
       const place = autocomplete.getPlace();
-      
       if (place.geometry) {
-        // Set the map center and zoom to the selected place
         map.setCenter(place.geometry.location);
         map.setZoom(15);
-        
-        // Update the marker position
         marker.setPosition(place.geometry.location);
-        
-        // Update the hidden fields with the coordinates
-        updateCoordinates(place.geometry.location);
+        document.getElementById('id_latitude').value = place.geometry.location.lat();
+        document.getElementById('id_longitude').value = place.geometry.location.lng();
       } else {
         console.log("No details available for input: '" + place.name + "'");
       }
     });
 
-    // Handle marker drag
     marker.addListener('dragend', function() {
       updateCoordinates(marker.getPosition());
       reverseGeocode(marker.getPosition());
     });
 
-    // Add a listener for when the user stops typing in the location field
     input.addEventListener('blur', function() {
-      // If the input has a value but no place was selected from autocomplete
       if (input.value && !marker.getPosition()) {
         geocodeAddress(input.value);
       }
     });
   }
 
-  // Function to geocode an address and update the map
   function geocodeAddress(address) {
     geocoder.geocode({ address: address }, (results, status) => {
       if (status === 'OK' && results[0]) {
-        // Set the map center and zoom to the geocoded location
         map.setCenter(results[0].geometry.location);
         map.setZoom(15);
-        
-        // Update the marker position
         marker.setPosition(results[0].geometry.location);
-        
-        // Update the hidden fields with the coordinates
-        updateCoordinates(results[0].geometry.location);
+        document.getElementById('id_latitude').value = results[0].geometry.location.lat();
+        document.getElementById('id_longitude').value = results[0].geometry.location.lng();
       } else {
         console.log('Geocode was not successful for the following reason: ' + status);
       }
@@ -144,7 +121,6 @@
     });
   }
 
-  // Load the Google Maps API when the page loads
   window.addEventListener('load', function() {
     loadGoogleMapsAPI().catch(error => {
       console.error('Error loading Google Maps API:', error);
