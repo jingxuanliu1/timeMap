@@ -3,6 +3,7 @@
 {% block content %}
   <h2>Your Tasks</h2>
   <a href="{% url 'tasks:create_task' %}">Add New Task</a>
+<p style="font-weight: bold; color: green;">✅ Completed Tasks: {{ completed_count }}</p>
   <ul>
     {% for task in tasks %}
       <li>

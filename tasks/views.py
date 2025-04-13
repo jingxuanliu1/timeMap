@@ -8,7 +8,8 @@ from .forms import TaskForm
 @login_required
 def index(request):
     tasks = Task.objects.filter(user=request.user).order_by('start_time')  # Get tasks for the logged-in user
-    return render(request, 'tasks/index.html', {'tasks': tasks})
+    completed_count = Task.objects.filter(user=request.user).filter(completed=True).count()
+    return render(request, 'tasks/index.html', {'tasks': tasks, 'completed_count': completed_count})
 
 # View to create a new task
 @login_required
