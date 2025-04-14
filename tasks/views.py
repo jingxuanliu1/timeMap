@@ -45,7 +45,7 @@ def index(request):
         'days': days,
         'selected_date': selected_date.strftime('%Y-%m-%d'),
         'start_date': start_date.strftime('%Y-%m-%d'),
-        'display_date': selected_date.strftime('%B %-d, %Y')
+        'display_date': f"{selected_date.strftime('%B')} {selected_date.day}, {selected_date.year}",
     })
 
 @login_required
