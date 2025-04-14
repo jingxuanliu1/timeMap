@@ -17,8 +17,13 @@ class TaskForm(forms.ModelForm):
             'location': forms.TextInput(attrs={
                 'id': 'location-input',
                 'class': 'form-control',
-                'placeholder': 'Enter location'
+                'placeholder': 'Enter End location'
+            }),
+            'start_location': forms.TextInput(attrs={
+                'id': 'location-input2',
+                'class': 'form-control2',
+                'placeholder': 'Enter Start location'
             })
         }
-        fields = ['title', 'description', 'location', 'start_time', 'end_time', 'completed', 'latitude', 'longitude']
+        fields = ['title', 'description', 'location', 'start_location', 'start_time', 'end_time', 'completed', 'latitude', 'longitude', 'latitude2', 'longitude2']
 
