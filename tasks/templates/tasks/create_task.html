@@ -20,12 +20,14 @@
       {% endif %}
     {% endfor %}
     <div class="mb-3">
-      <label for="location-input" class="form-label">Start Location</label>
+      <label for="location-input2" class="form-label">Start Location</label>
       <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location">
       <label for="location-input" class="form-label">End Location</label>
       <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location">
       <input type="hidden" id="id_latitude" name="latitude">
       <input type="hidden" id="id_longitude" name="longitude">
+      <input type="hidden" id="id_latitude2" name="latitude2">
+      <input type="hidden" id="id_longitude2" name="longitude2">
     </div>
     <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
     <button type="submit" class="btn btn-primary">Save Task</button>
@@ -109,7 +111,7 @@
         console.log("No details available for input: '" + place.name + "'");
       }
     });
-        autocomplete2.addListener('place_changed', function() {
+  autocomplete2.addListener('place_changed', function() {
       const place = autocomplete2.getPlace();
 
       if (place.geometry) {
@@ -118,7 +120,7 @@
         map.setZoom(15);
 
         // Update the marker position
-        marker.setPosition(place.geometry.location);
+        marker2.setPosition(place.geometry.location);
 
         // Update the hidden fields with the coordinates
         updateCoordinates(place.geometry.location, 2);

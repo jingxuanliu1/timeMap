@@ -6,14 +6,8 @@
   <h2>Update Task: {{ task.title }}</h2>
   <form method="POST" id="task-form">
     {% csrf_token %}
-    <div class="mb-3">
-      <label for="location-input" class="form-label">Location</label>
-      <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter location" value="{{ task.location }}">
-      <input type="hidden" id="id_latitude" name="latitude" value="{{ task.latitude }}">
-      <input type="hidden" id="id_longitude" name="longitude" value="{{ task.longitude }}">
-    </div>
     {% for field in form %}
-      {% if field.name != 'location' and field.name != 'latitude' and field.name != 'longitude' %}
+      {% if field.name != 'location' and field.name != 'start_location' and field.name != 'latitude' and field.name != 'longitude' and field.name != 'latitude2' and field.name != 'longitude2' %}
         <div class="mb-3">
           <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
           {{ field }}
@@ -25,6 +19,16 @@
         </div>
       {% endif %}
     {% endfor %}
+    <div class="mb-3">
+      <label for="location-input2" class="form-label">Start Location</label>
+      <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location" value="{{ task.start_location }}">
+      <label for="location-input" class="form-label">End Location</label>
+      <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location" value="{{ task.location }}">
+      <input type="hidden" id="id_latitude" name="latitude" value ="{{ task.latitude }}">
+      <input type="hidden" id="id_longitude" name="longitude" value ="{{ task.longitude }}">
+      <input type="hidden" id="id_latitude2" name="latitude2" value ="{{ task.latitude2 }}">
+      <input type="hidden" id="id_longitude2" name="longitude2"  value ="{{ task.longitude2 }}">
+    </div>
     <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
     <button type="submit" class="btn btn-primary">Update Task</button>
   </form>
@@ -48,8 +52,10 @@
 
   let map;
   let marker;
+  let marker2;
   let geocoder;
   let autocomplete;
+  let autocomplete2;
 
   // Initialize the map
   function initMap() {
@@ -73,31 +79,62 @@
       },
       draggable: true
     });
+    marker2 = new google.maps.Marker({
+      map: map,
+      position: {
+        lat: {{ task.latitude2|default:"40.7128" }},
+        lng: {{ task.longitude2|default:"-74.0060" }}
+      },
+      draggable: true
+    });
 
     // Initialize the autocomplete
     const input = document.getElementById('location-input');
+    const input2 = document.getElementById('location-input2');
     autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['geocode'],
       componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
     });
-    
+    autocomplete2 = new google.maps.places.Autocomplete(input2, {
+      types: ['geocode'],
+      componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
+    });
+
     // Bind the autocomplete to the map
     autocomplete.bindTo('bounds', map);
-    
+    autocomplete2.bindTo('bounds', map);
+
     // Add a listener for when a place is selected
     autocomplete.addListener('place_changed', function() {
       const place = autocomplete.getPlace();
-      
+
       if (place.geometry) {
         // Set the map center and zoom to the selected place
         map.setCenter(place.geometry.location);
         map.setZoom(15);
-        
+
         // Update the marker position
         marker.setPosition(place.geometry.location);
-        
+
         // Update the hidden fields with the coordinates
-        updateCoordinates(place.geometry.location);
+        updateCoordinates(place.geometry.location, 1);
+      } else {
+        console.log("No details available for input: '" + place.name + "'");
+      }
+    });
+  autocomplete2.addListener('place_changed', function() {
+      const place = autocomplete2.getPlace();
+
+      if (place.geometry) {
+        // Set the map center and zoom to the selected place
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
+
+        // Update the marker position
+        marker2.setPosition(place.geometry.location);
+
+        // Update the hidden fields with the coordinates
+        updateCoordinates(place.geometry.location, 2);
       } else {
         console.log("No details available for input: '" + place.name + "'");
       }
@@ -105,47 +142,70 @@
 
     // Handle marker drag
     marker.addListener('dragend', function() {
-      updateCoordinates(marker.getPosition());
-      reverseGeocode(marker.getPosition());
+      updateCoordinates(marker.getPosition(), 1);
+      reverseGeocode(marker.getPosition(), 1);
+    });
+    marker2.addListener('dragend', function() {
+      updateCoordinates(marker2.getPosition(), 2);
+      reverseGeocode(marker2.getPosition(), 2);
     });
 
     // Add a listener for when the user stops typing in the location field
     input.addEventListener('blur', function() {
       // If the input has a value but no place was selected from autocomplete
       if (input.value && !marker.getPosition()) {
-        geocodeAddress(input.value);
+        geocodeAddress(input.value, marker);
+      }
+    });
+    input2.addEventListener('blur', function() {
+      // If the input has a value but no place was selected from autocomplete
+      if (input2.value && !marker2.getPosition()) {
+        geocodeAddress(input2.value,  marker2);
       }
     });
   }
 
   // Function to geocode an address and update the map
-  function geocodeAddress(address) {
+  function geocodeAddress(address, mark) {
     geocoder.geocode({ address: address }, (results, status) => {
       if (status === 'OK' && results[0]) {
         // Set the map center and zoom to the geocoded location
         map.setCenter(results[0].geometry.location);
         map.setZoom(15);
-        
+
         // Update the marker position
-        marker.setPosition(results[0].geometry.location);
-        
+        mark.setPosition(results[0].geometry.location);
+
         // Update the hidden fields with the coordinates
-        updateCoordinates(results[0].geometry.location);
+        if (mark == marker) {
+          updateCoordinates(results[0].geometry.location, 1);
+        } else {
+          updateCoordinates(results[0].geometry.location, 2);
+        }
       } else {
         console.log('Geocode was not successful for the following reason: ' + status);
       }
     });
   }
 
-  function updateCoordinates(location) {
-    document.getElementById('id_latitude').value = location.lat();
-    document.getElementById('id_longitude').value = location.lng();
+  function updateCoordinates(location, i) {
+    if (i == 1) {
+      document.getElementById('id_latitude').value = location.lat();
+      document.getElementById('id_longitude').value = location.lng();
+    } else {
+      document.getElementById('id_latitude2').value = location.lat();
+      document.getElementById('id_longitude2').value = location.lng();
+    }
   }
 
-  function reverseGeocode(location) {
+  function reverseGeocode(location, i) {
     geocoder.geocode({ location: location }, (results, status) => {
       if (status === 'OK' && results[0]) {
-        document.getElementById('location-input').value = results[0].formatted_address;
+        if (i == 1) {
+          document.getElementById('location-input').value = results[0].formatted_address;
+        } else {
+          document.getElementById('location-input2').value = results[0].formatted_address;
+        }
       }
     });
   }
