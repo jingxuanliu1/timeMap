@@ -30,6 +30,7 @@
       <input type="hidden" id="id_longitude2" name="longitude2"  value ="{{ task.longitude2 }}">
     </div>
     <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
+    <div id="travel_time"></div>
     <button type="submit" class="btn btn-primary">Update Task</button>
   </form>
 </div>
@@ -56,6 +57,8 @@
   let geocoder;
   let autocomplete;
   let autocomplete2;
+  let directionsService;
+  let directionsRenderer
 
   // Initialize the map
   function initMap() {
@@ -163,6 +166,29 @@
         geocodeAddress(input2.value,  marker2);
       }
     });
+
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map
+    });
+
+    const request = {
+        destination: document.getElementById('location-input').value,
+        origin: document.getElementById('location-input2').value,
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, (result, status) => {
+        if (status === 'OK') {
+            directionsRenderer.setDirections(result);
+
+            const duration = result.routes[0].legs[0].duration.text;
+            console.log('Estimated travel time: ' + duration);
+            document.getElementById('travel_time').innerText = duration;
+        } else {
+            console.error('Directions request failed due to ' + status);
+        }
+    });
+
   }
 
   // Function to geocode an address and update the map
@@ -196,6 +222,23 @@
       document.getElementById('id_latitude2').value = location.lat();
       document.getElementById('id_longitude2').value = location.lng();
     }
+    const request = {
+        destination: new google.maps.LatLng(document.getElementById('id_latitude').value, document.getElementById('id_longitude').value),
+        origin: new google.maps.LatLng(document.getElementById('id_latitude2').value, document.getElementById('id_longitude2').value),
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, (result, status) => {
+        if (status === 'OK') {
+            directionsRenderer.setDirections(result);
+
+            const duration = result.routes[0].legs[0].duration.text;
+            console.log('Estimated travel time: ' + duration);
+            document.getElementById('travel_time').innerText = duration;
+        } else {
+            console.error('Directions request failed due to ' + status);
+        }
+    });
+
   }
 
   function reverseGeocode(location, i) {
