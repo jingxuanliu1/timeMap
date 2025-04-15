@@ -1,4 +1,3 @@
-# tasks/forms.py - Updated version
 from django import forms
 from .models import Task
 
@@ -9,10 +8,6 @@ class TaskForm(forms.ModelForm):
     end_time = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={"type": "datetime-local"})
     )
-    due_date = forms.DateTimeField(  # Add this
-        widget=forms.DateTimeInput(attrs={"type": "datetime-local"}),
-        required=False
-    )
     latitude = forms.FloatField(widget=forms.HiddenInput(), required=False)
     longitude = forms.FloatField(widget=forms.HiddenInput(), required=False)
 
@@ -22,13 +17,13 @@ class TaskForm(forms.ModelForm):
             'location': forms.TextInput(attrs={
                 'id': 'location-input',
                 'class': 'form-control',
-                'placeholder': 'Enter location'
+                'placeholder': 'Enter End location'
             }),
-            'priority': forms.NumberInput(attrs={
-                'min': 1,
-                'max': 5
+            'start_location': forms.TextInput(attrs={
+                'id': 'location-input2',
+                'class': 'form-control2',
+                'placeholder': 'Enter Start location'
             })
         }
-        fields = ['title', 'description', 'location', 'start_time', 'end_time',
-                 'due_date', 'priority', 'completed', 'latitude', 'longitude']
+        fields = ['title', 'description', 'location', 'start_location', 'start_time', 'end_time', 'completed', 'latitude', 'longitude', 'latitude2', 'longitude2']
 
