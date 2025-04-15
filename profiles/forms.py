@@ -54,15 +54,15 @@ class CustomSetPasswordForm(SetPasswordForm):
         return gmail
 
     def save(self, commit=True):
-        user = super().save(commit=commit)
-        gmail = self.cleaned_data['gmail']
+        user = super().save(commit=False)
         if commit:
-            UserProfile.objects.update_or_create(
+            user.save()
+            # Check if UserProfile already exists before creating
+            UserProfile.objects.get_or_create(
                 user=user,
-                defaults={'gmail': gmail}
+                defaults={'gmail': self.cleaned_data['gmail']}
             )
         return user
-
 
 class UserProfileForm(forms.ModelForm):
     class Meta:

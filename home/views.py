@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from profiles.forms import CustomUserCreationForm
+from profiles.models import UserProfile
 
 
 def index(request):
@@ -21,7 +22,7 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()  # This now handles profile creation
             messages.success(request, 'Registration successful! Please log in.')
             return redirect('login')
         else:
@@ -34,8 +35,6 @@ def register(request):
         'form': form,
     }
     return render(request, 'home/register.html', {'template_data': template_data})
-
-
 def friends(request):
     template_data = {
         'title': 'Friends',
