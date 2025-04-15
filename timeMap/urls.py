@@ -9,6 +9,8 @@ def get_urlpatterns():
         path('', include('home.urls')),
         path('tasks/', include('tasks.urls')),
         path('accounts/', include('django.contrib.auth.urls')),
+        path('notifications/', include('notifications.urls')),
+
     ]
 
 urlpatterns = get_urlpatterns()

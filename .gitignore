@@ -1,0 +1,17 @@
+# Gmail API credentials
+credentials.json
+token.json
+
+# Test Script
+test_gmail_send.py
+
+# Celery related file
+celerybeat-schedule
+worker.log
+
+# Python environment file
+*.pyc
+__pycache__/
+
+# virtual environment
+venv/

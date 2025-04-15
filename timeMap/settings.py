@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from celery.schedules import crontab
 
 # Load environment variables from .env file
 load_dotenv()
@@ -32,6 +33,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'home',
     'tasks',
+    'notifications',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -109,7 +112,12 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'America/New_York'
-
+CELERY_BEAT_SCHEDULE = {
+    'send-task-notifications-every-minute': {
+        'task': 'notifications.tasks.send_upcoming_task_notifications',
+        'schedule': crontab(),  # every minute
+    },
+}
 
 # Google Maps API Key
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')

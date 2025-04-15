@@ -1,7 +1,21 @@
 from django import forms
-from .models import Task
+from tasks.models import Task
 
 class TaskForm(forms.ModelForm):
+    NOTIFICATION_CHOICES = [
+        (5, "5 minutes before"),
+        (10, "10 minutes before"),
+        (15, "15 minutes before"),
+        (20, "20 minutes before"),
+        (30, "30 minutes before"),
+    ]
+
+    notify_before = forms.ChoiceField(
+        choices=NOTIFICATION_CHOICES,
+        required=False,
+        label="Notify me"
+    )
+
     start_time = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={"type": "datetime-local"})
     )
@@ -13,6 +27,17 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
+        fields = [
+            'title',
+            'description',
+            'location',
+            'start_time',
+            'end_time',
+            'completed',
+            'latitude',
+            'longitude',
+            'notify_before',
+        ]
         widgets = {
             'location': forms.TextInput(attrs={
                 'id': 'location-input',
@@ -20,5 +45,3 @@ class TaskForm(forms.ModelForm):
                 'placeholder': 'Enter location'
             })
         }
-        fields = ['title', 'description', 'location', 'start_time', 'end_time', 'completed', 'latitude', 'longitude']
-

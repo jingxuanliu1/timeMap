@@ -49,9 +49,11 @@ def index(request):
     })
 
 @login_required
+@login_required
 def create_task(request):
     selected_date = request.GET.get('selected_date', '')
     start_date = request.GET.get('start_date', timezone.localdate().strftime('%Y-%m-%d'))
+
     if request.method == 'POST':
         form = TaskForm(request.POST)
         if form.is_valid():
@@ -59,16 +61,20 @@ def create_task(request):
             task.user = request.user
             task.latitude = form.cleaned_data.get('latitude')
             task.longitude = form.cleaned_data.get('longitude')
+            task.notify_before = int(form.cleaned_data['notify_before']) if form.cleaned_data['notify_before'] else None
             task.save()
-            return redirect(f"{reverse('tasks:index')}?selected_date={request.POST.get('selected_date', '')}&start_date={start_date}")
+            return redirect(
+                f"{reverse('tasks:index')}?selected_date={request.POST.get('selected_date', '')}&start_date={start_date}")
     else:
         form = TaskForm()
+
     return render(request, 'tasks/create_task.html', {
         'form': form,
         'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY,
         'selected_date': selected_date,
-        'start_date': start_date  # Pass to template
+        'start_date': start_date
     })
+
 
 @login_required
 def update_task(request, task_id):
@@ -79,6 +85,7 @@ def update_task(request, task_id):
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             task = form.save(commit=False)
+            task.notify_before = int(form.cleaned_data['notify_before']) if form.cleaned_data['notify_before'] else None
             task.latitude = form.cleaned_data.get('latitude')
             task.longitude = form.cleaned_data.get('longitude')
             task.save()

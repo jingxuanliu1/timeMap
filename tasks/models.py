@@ -12,6 +12,20 @@ class Task(models.Model):
     end_time = models.DateTimeField()  # When the task should end
     completed = models.BooleanField(default=False)
     travel_time = models.DurationField(null=True, blank=True)  # How long it takes to travel there
+    due_date = models.DateTimeField(null=True, blank=True)
+
+    notify_before = models.IntegerField(
+        choices=[
+            (5, "5 minutes before"),
+            (10, "10 minutes before"),
+            (15, "15 minutes before"),
+            (20, "20 minutes before"),
+            (30, "30 minutes before"),
+        ],
+        null=True,
+        blank=True,
+        help_text="Send notification this many minutes before start"
+    )
 
     def __str__(self):
         return f"{self.title} - {self.start_time}"
