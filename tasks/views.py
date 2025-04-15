@@ -19,6 +19,8 @@ def index(request):
         selected_date = timezone.make_aware(datetime.combine(selected_date, datetime.min.time())).date()
     except (ValueError, TypeError):
         selected_date = timezone.localdate()
+    tasks = Task.objects.filter(user=request.user).order_by('start_time')  # Get tasks for the logged-in user
+    completed_count = Task.objects.filter(user=request.user).filter(completed=True).count()
 
     # Parse start_date, default to today
     try:
@@ -45,7 +47,8 @@ def index(request):
         'days': days,
         'selected_date': selected_date.strftime('%Y-%m-%d'),
         'start_date': start_date.strftime('%Y-%m-%d'),
-        'display_date': selected_date.strftime('%B %-d, %Y')
+        'display_date': f"{selected_date.strftime('%B')} {selected_date.day}, {selected_date.year}",
+        'completed_count': completed_count
     })
 
 @login_required
