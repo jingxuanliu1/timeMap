@@ -10,6 +10,8 @@ class TaskForm(forms.ModelForm):
     )
     latitude = forms.FloatField(widget=forms.HiddenInput(), required=False)
     longitude = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    latitude2 = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    longitude2 = forms.FloatField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = Task
@@ -21,9 +23,10 @@ class TaskForm(forms.ModelForm):
             }),
             'start_location': forms.TextInput(attrs={
                 'id': 'location-input2',
-                'class': 'form-control2',
+                'class': 'form-control',
                 'placeholder': 'Enter Start location'
             })
         }
-        fields = ['title', 'description', 'location', 'start_location', 'start_time', 'end_time', 'completed', 'latitude', 'longitude', 'latitude2', 'longitude2']
-
+        fields = ['title', 'description', 'location', 'start_location',
+                 'start_time', 'end_time', 'completed',
+                 'latitude', 'longitude', 'latitude2', 'longitude2']

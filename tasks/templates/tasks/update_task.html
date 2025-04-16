@@ -19,24 +19,33 @@
         </div>
       {% endif %}
     {% endfor %}
+
     <div class="mb-3">
-      <label for="location-input2" class="form-label">Start Location</label>
-      <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location" value="{{ task.start_location }}">
-      <label for="location-input" class="form-label">End Location</label>
-      <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location" value="{{ task.location }}">
-      <input type="hidden" id="id_latitude" name="latitude" value ="{{ task.latitude }}">
-      <input type="hidden" id="id_longitude" name="longitude" value ="{{ task.longitude }}">
-      <input type="hidden" id="id_latitude2" name="latitude2" value ="{{ task.latitude2 }}">
-      <input type="hidden" id="id_longitude2" name="longitude2"  value ="{{ task.longitude2 }}">
+      <label for="location-input2" class="form-label">Start Location (optional)</label>
+      <input type="text" id="location-input2" name="start_location" class="form-control"
+             placeholder="Enter Start location" value="{{ task.start_location|default:'' }}">
+      <label for="location-input" class="form-label">End Location (optional)</label>
+      <input type="text" id="location-input" name="location" class="form-control"
+             placeholder="Enter End location" value="{{ task.location|default:'' }}">
+      <input type="hidden" id="id_latitude" name="latitude" value="{{ task.latitude|default:'' }}">
+      <input type="hidden" id="id_longitude" name="longitude" value="{{ task.longitude|default:'' }}">
+      <input type="hidden" id="id_latitude2" name="latitude2" value="{{ task.latitude2|default:'' }}">
+      <input type="hidden" id="id_longitude2" name="longitude2" value="{{ task.longitude2|default:'' }}">
     </div>
+
+    {% if task.location or task.start_location %}
     <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
     <div id="travel_time"></div>
+    {% endif %}
+
     <button type="submit" class="btn btn-primary">Update Task</button>
   </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+{% if task.location or task.start_location %}
+
 <script>
   // Load the Google Maps JavaScript API asynchronously
   function loadGoogleMapsAPI() {
@@ -257,7 +266,9 @@
   window.addEventListener('load', function() {
     loadGoogleMapsAPI().catch(error => {
       console.error('Error loading Google Maps API:', error);
+      console.error('Error loading Google Maps API:', error);
     });
   });
 </script>
+{% endif %}
 {% endblock %}

@@ -16,9 +16,6 @@ class Task(models.Model):
     completed = models.BooleanField(default=False)
     travel_time = models.DurationField(null=True, blank=True)
 
-    #below is from main, might need to delete later!!!!
-    priority = models.IntegerField(default=1)  # Add this missing field
-    due_date = models.DateTimeField(null=True, blank=True)  # Add this missing field
 
     def __str__(self):
         return f"{self.title} - {self.start_time}"

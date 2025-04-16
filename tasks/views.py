@@ -44,9 +44,15 @@ def update_task(request, task_id):
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             task = form.save(commit=False)
-            # Explicitly set latitude and longitude from form data
-            task.latitude = form.cleaned_data.get('latitude')
-            task.longitude = form.cleaned_data.get('longitude')
+            # Only update location fields if they exist in form data
+            if 'latitude' in form.cleaned_data:
+                task.latitude = form.cleaned_data.get('latitude')
+            if 'longitude' in form.cleaned_data:
+                task.longitude = form.cleaned_data.get('longitude')
+            if 'latitude2' in form.cleaned_data:
+                task.latitude2 = form.cleaned_data.get('latitude2')
+            if 'longitude2' in form.cleaned_data:
+                task.longitude2 = form.cleaned_data.get('longitude2')
             task.save()
             return redirect('tasks:index')
     else:

@@ -20,8 +20,8 @@
                   {% if task.description %} - {{ task.description }}{% endif %}
                   <br>
                   <small>
-                    Priority: {{ task.priority }} |
-                    Due: {% if task.due_date %}{{ task.due_date|date:"M d, Y H:i" }}{% else %}No due date{% endif %} |
+                    Start: {{ task.start_time|time:"g:i A" }} |
+                    End: {{ task.end_time|time:"g:i A" }} |
                     Status: {% if task.completed %}Completed{% else %}Pending{% endif %}
                   </small>
                   <div class="mt-2">
