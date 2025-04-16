@@ -8,6 +8,7 @@
         {% if request.user.is_authenticated %}
           <a href="{% url 'tasks:create_task' %}" class="btn btn-primary mb-3">Create New Task</a>
           <p>Tasks for: {{ request.user.username }}</p>
+          <p>Completed tasks: {{ template_data.completed_count }} out of {{ template_data.tasks|length }}</p>
         {% endif %}
         <hr />
         {% if request.user.is_authenticated %}
