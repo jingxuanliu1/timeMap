@@ -1,3 +1,4 @@
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from profiles.forms import CustomUserCreationForm
@@ -20,21 +21,20 @@ def about(request):
 
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()  # This now handles profile creation
-            messages.success(request, 'Registration successful! Please log in.')
-            return redirect('login')
-        else:
-            messages.error(request, 'Please correct the errors below.')
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account created for {username}! You can now log in.')
+            return redirect('login')  # Redirect to the login page
     else:
-        form = CustomUserCreationForm()
-
-    template_data = {
-        'title': 'Register',
-        'form': form,
-    }
+        form = UserCreationForm()
+    template_data = {}
+    template_data['title'] = 'Register'
+    template_data['form'] = form
     return render(request, 'home/register.html', {'template_data': template_data})
+
+
 def friends(request):
     template_data = {
         'title': 'Friends',
