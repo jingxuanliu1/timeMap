@@ -22,9 +22,10 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()  # This now handles profile creation
-            messages.success(request, 'Registration successful! Please log in.')
-            return redirect('login')
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account created for {username}! You can now log in.')
+            return redirect('login')  # Redirect to the login page
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

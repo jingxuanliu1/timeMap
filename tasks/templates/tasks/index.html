@@ -1,18 +1,43 @@
 {% extends 'base.html' %}
-
 {% block content %}
-  <h2>Your Tasks</h2>
-  <a href="{% url 'tasks:create_task' %}">Add New Task</a>
-<p style="font-weight: bold; color: green;">✅ Completed Tasks: {{ completed_count }}</p>
-  <ul>
-    {% for task in tasks %}
-      <li>
-        <strong>{{ task.title }}</strong><br>
-        <p>{{ task.description }}</p>
-        <p>Start: {{ task.start_time }} - End: {{ task.end_time }}</p>
-        <a href="{% url 'tasks:update_task' task.id %}">Edit</a> |
-        <a href="{% url 'tasks:delete_task' task.id %}">Delete</a>
-      </li>
-    {% endfor %}
-  </ul>
+<div class="p-3">
+  <div class="container">
+    <div class="row mt-3">
+      <div class="col-md-12 mx-auto mb-3">
+        <h2>{{ template_data.title }}</h2>
+        {% if request.user.is_authenticated %}
+          <a href="{% url 'tasks:create_task' %}" class="btn btn-primary mb-3">Create New Task</a>
+          <p>Tasks for: {{ request.user.userprofile.gmail|default:request.user.username }}</p>
+        {% endif %}
+        <hr />
+        {% if request.user.is_authenticated %}
+          {% if template_data.tasks %}
+            <ul class="list-group">
+              {% for task in template_data.tasks %}
+                <li class="list-group-item {% if task.completed %}text-muted{% endif %}">
+                  <strong>{{ task.title }}</strong>
+                  {% if task.description %} - {{ task.description }}{% endif %}
+                  <br>
+                  <small>
+                    Priority: {{ task.priority }} |
+                    Due: {% if task.due_date %}{{ task.due_date|date:"M d, Y H:i" }}{% else %}No due date{% endif %} |
+                    Status: {% if task.completed %}Completed{% else %}Pending{% endif %}
+                  </small>
+                  <div class="mt-2">
+                    <a href="{% url 'tasks:update_task' task.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'tasks:delete_task' task.id %}" class="btn btn-sm btn-danger">Delete</a>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p>No tasks yet. <a href="{% url 'tasks:create_task' %}">Start adding some!</a></p>
+          {% endif %}
+        {% else %}
+          <p>Please <a href="{% url 'login' %}">log in</a> to view your tasks.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

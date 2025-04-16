@@ -140,3 +140,10 @@ body {
 .navbar-nav .dropdown-toggle::after {
     display: none;
 }
+
+.username-greeting {
+    color: #1E90FF !important;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 18px;
+}
+
