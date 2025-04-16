@@ -7,7 +7,7 @@
         <h2>{{ template_data.title }}</h2>
         {% if request.user.is_authenticated %}
           <a href="{% url 'tasks:create_task' %}" class="btn btn-primary mb-3">Create New Task</a>
-          <p>Tasks for: {{ request.user.userprofile.gmail|default:request.user.username }}</p>
+          <p>Tasks for: {{ request.user.username }}</p>
         {% endif %}
         <hr />
         {% if request.user.is_authenticated %}
