@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <!-- Base Linear Gradient -->
+    <linearGradient id="baseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3e008c; stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#7a29ba; stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a347f6; stop-opacity:1" />
+    </linearGradient>
+
+    <!-- First Radial Gradient (subtle ring) -->
+    <radialGradient id="ring1" cx="75%" cy="20%" r="1" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.10); stop-opacity:1" />
+      <stop offset="50%" style="stop-color:rgba(255,255,255,0.00); stop-opacity:0" />
+    </radialGradient>
+
+    <!-- Second Radial Gradient (extra highlight) -->
+    <radialGradient id="ring2" cx="80%" cy="15%" r="1" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" style="stop-color:rgba(255,255,255,0.06); stop-opacity:1" />
+      <stop offset="70%" style="stop-color:rgba(255,255,255,0.00); stop-opacity:0" />
+    </radialGradient>
+  </defs>
+
+  <!-- Base rectangle with purple gradient -->
+  <rect width="1200" height="800" fill="url(#baseGradient)" />
+
+  <!-- Overlay the radial rings -->
+  <rect width="1200" height="800" fill="url(#ring1)" />
+  <rect width="1200" height="800" fill="url(#ring2)" />
+</svg>

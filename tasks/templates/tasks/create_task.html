@@ -6,6 +6,8 @@
   <h2>Create New Task</h2>
   <form method="POST" id="task-form">
     {% csrf_token %}
+    <input type="hidden" name="selected_date" value="{{ selected_date }}">
+    <input type="hidden" name="start_date" value="{{ start_date }}">
     {% for field in form %}
       {% if field.name != 'location' and field.name != 'start_location' and field.name != 'latitude' and field.name != 'longitude' and field.name != 'latitude2' and field.name != 'longitude2'%}
         <div class="mb-3">
@@ -91,11 +93,11 @@
       types: ['geocode'],
       componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
     });
-    
+
     // Bind the autocomplete to the map
     autocomplete.bindTo('bounds', map);
     autocomplete2.bindTo('bounds', map);
-    
+
     // Add a listener for when a place is selected
     autocomplete.addListener('place_changed', function() {
       const place = autocomplete.getPlace();

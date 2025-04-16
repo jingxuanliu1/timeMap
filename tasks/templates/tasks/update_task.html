@@ -1,3 +1,4 @@
+<!-- tasks/templates/tasks/update_task.html -->
 {% extends 'base.html' %}
 {% load static %}
 
@@ -6,6 +7,8 @@
   <h2>Update Task: {{ task.title }}</h2>
   <form method="POST" id="task-form">
     {% csrf_token %}
+    <input type="hidden" name="selected_date" value="{{ selected_date }}">
+    <input type="hidden" name="start_date" value="{{ start_date }}">
     {% for field in form %}
       {% if field.name != 'location' and field.name != 'start_location' and field.name != 'latitude' and field.name != 'longitude' and field.name != 'latitude2' and field.name != 'longitude2' %}
         <div class="mb-3">
@@ -69,12 +72,10 @@
   let directionsService;
   let directionsRenderer
 
-  // Initialize the map
   function initMap() {
-    // Initialize the map
     map = new google.maps.Map(document.getElementById('map'), {
-      center: { 
-        lat: {{ task.latitude|default:"40.7128" }}, 
+      center: {
+        lat: {{ task.latitude|default:"40.7128" }},
         lng: {{ task.longitude|default:"-74.0060" }}
       },
       zoom: 12
@@ -85,17 +86,9 @@
     // Initialize the marker using the standard Marker class
     marker = new google.maps.Marker({
       map: map,
-      position: { 
-        lat: {{ task.latitude|default:"40.7128" }}, 
-        lng: {{ task.longitude|default:"-74.0060" }}
-      },
-      draggable: true
-    });
-    marker2 = new google.maps.Marker({
-      map: map,
       position: {
-        lat: {{ task.latitude2|default:"40.7128" }},
-        lng: {{ task.longitude2|default:"-74.0060" }}
+        lat: {{ task.latitude|default:"40.7128" }},
+        lng: {{ task.longitude|default:"-74.0060" }}
       },
       draggable: true
     });
