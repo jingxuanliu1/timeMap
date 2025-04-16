@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from profiles.forms import CustomUserCreationForm
 from profiles.models import UserProfile
+from django.db import IntegrityError
+
 
 
 def index(request):
@@ -22,20 +24,20 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}! You can now log in.')
-            return redirect('login')  # Redirect to the login page
+            try:
+                user = form.save()
+                messages.success(request, 'Registration successful! Please log in.')
+                return redirect('login')
+            except IntegrityError:
+                messages.error(request, 'An error occurred during registration. Please try again.')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = CustomUserCreationForm()
 
-    template_data = {
-        'title': 'Register',
-        'form': form,
-    }
-    return render(request, 'home/register.html', {'template_data': template_data})
+    return render(request, 'home/register.html', {
+        'template_data': {'title': 'Register', 'form': form,}})
+
 def friends(request):
     template_data = {
         'title': 'Friends',

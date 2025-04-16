@@ -14,29 +14,33 @@ class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'gmail', 'password1', 'password2')
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
-            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
-        }
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
 
     def clean_gmail(self):
-        gmail = self.cleaned_data['gmail']
+        gmail = self.cleaned_data['gmail'].lower()  # Normalize to lowercase
         if not gmail.endswith('@gmail.com'):
             raise forms.ValidationError("Please use a Gmail address (e.g., example@gmail.com).")
-        if UserProfile.objects.filter(gmail=gmail).exists():
-            raise forms.ValidationError("This Gmail address is already in use.")
+
+        # Only check against User model, not UserProfile
+        if User.objects.filter(email=gmail).exists():
+            raise forms.ValidationError("This email address is already in use.")
         return gmail
 
     def save(self, commit=True):
-        user = super().save(commit=commit)
-        if commit:
-            UserProfile.objects.create(
-                user=user,
-                gmail=self.cleaned_data['gmail']
-            )
-        return user
+        # Set both email and username from the form data
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['gmail']
 
+        if commit:
+            user.save()
+            # Create profile but don't set gmail here - let signal handle it
+            UserProfile.objects.get_or_create(user=user)
+        return user
 
 class CustomSetPasswordForm(SetPasswordForm):
     gmail = forms.EmailField(

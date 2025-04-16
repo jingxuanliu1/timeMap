@@ -88,9 +88,17 @@ class Friendship(models.Model):
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        UserProfile.objects.create(user=instance, gmail=instance.email or '')
-
+        # Only create profile if it doesn't exist
+        profile, created = UserProfile.objects.get_or_create(
+            user=instance,
+            defaults={'gmail': instance.email or ''}
+        )
+        if not created:
+            # Update existing profile if needed
+            profile.gmail = instance.email or ''
+            profile.save()
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
+    if hasattr(instance, 'userprofile'):
+        instance.userprofile.save()
