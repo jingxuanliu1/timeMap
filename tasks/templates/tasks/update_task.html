@@ -69,15 +69,15 @@
       <div class="col-md-6">
         <div class="mb-3">
           <label class="form-label">Start Location</label>
-          <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location">
+          <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location" value ="{{ task.start_location }}">
           <label class="form-label mt-2">End Location</label>
-          <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location">
+          <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location" value ="{{ task.location }}">
 
           <!-- Hidden location fields -->
-          <input type="hidden" id="id_latitude" name="latitude">
-          <input type="hidden" id="id_longitude" name="longitude">
-          <input type="hidden" id="id_latitude2" name="latitude2">
-          <input type="hidden" id="id_longitude2" name="longitude2">
+      <input type="hidden" id="id_latitude" name="latitude" value ="{{ task.latitude }}">
+      <input type="hidden" id="id_longitude" name="longitude" value ="{{ task.longitude }}">
+      <input type="hidden" id="id_latitude2" name="latitude2" value ="{{ task.latitude2 }}">
+      <input type="hidden" id="id_longitude2" name="longitude2"  value ="{{ task.longitude2 }}">
         </div>
 
         <!-- Map -->
@@ -97,7 +97,7 @@
 {% if task.location or task.start_location %}
 
 <script>
-  // Load the Google Maps JavaScript API asynchronously
+    // Load the Google Maps JavaScript API asynchronously
   function loadGoogleMapsAPI() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -119,7 +119,9 @@
   let directionsService;
   let directionsRenderer
 
+  // Initialize the map
   function initMap() {
+    // Initialize the map
     map = new google.maps.Map(document.getElementById('map'), {
       center: {
         lat: {{ task.latitude|default:"40.7128" }},
@@ -129,13 +131,21 @@
     });
 
     geocoder = new google.maps.Geocoder();
-    
+
     // Initialize the marker using the standard Marker class
     marker = new google.maps.Marker({
       map: map,
       position: {
         lat: {{ task.latitude|default:"40.7128" }},
         lng: {{ task.longitude|default:"-74.0060" }}
+      },
+      draggable: true
+    });
+    marker2 = new google.maps.Marker({
+      map: map,
+      position: {
+        lat: {{ task.latitude2|default:"40.7128" }},
+        lng: {{ task.longitude2|default:"-74.0060" }}
       },
       draggable: true
     });
@@ -222,8 +232,8 @@
     });
 
     const request = {
-        destination: document.getElementById('location-input').value,
-        origin: document.getElementById('location-input2').value,
+        destination: new google.maps.LatLng(document.getElementById('id_latitude').value, document.getElementById('id_longitude').value),
+        origin: new google.maps.LatLng(document.getElementById('id_latitude2').value, document.getElementById('id_longitude2').value),
         travelMode: google.maps.TravelMode.DRIVING
     };
     directionsService.route(request, (result, status) => {
@@ -237,6 +247,8 @@
             console.error('Directions request failed due to ' + status);
         }
     });
+    //reverseGeocode(marker.getPosition(), 1);
+    //reverseGeocode(marker2.getPosition(), 2);
 
   }
 
@@ -305,7 +317,6 @@
   // Load the Google Maps API when the page loads
   window.addEventListener('load', function() {
     loadGoogleMapsAPI().catch(error => {
-      console.error('Error loading Google Maps API:', error);
       console.error('Error loading Google Maps API:', error);
     });
   });
