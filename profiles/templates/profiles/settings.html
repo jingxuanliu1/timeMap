@@ -19,26 +19,6 @@
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <!-- Gmail Field -->
-                <div class="mb-3">
-                    <label class="form-label">{{ form.gmail.label }}</label>
-                    <input type="email"
-                           name="gmail"
-                           value="{{ form.gmail.value|default:'' }}"
-                           class="form-control {% if form.gmail.errors %}is-invalid{% endif %}"
-                           required>
-                    {% if form.gmail.errors %}
-                        <div class="invalid-feedback">
-                            {% for error in form.gmail.errors %}
-                                {{ error }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    <small class="form-text text-muted">
-                        Must be a valid Gmail address (e.g., example@gmail.com)
-                    </small>
-                </div>
-
                 <!-- Phone Number Field -->
                 <div class="mb-3">
                     <label class="form-label">{{ form.phone_number.label }}</label>
@@ -131,6 +111,59 @@
                     </a>
                 </div>
             </form>
+
+            <!-- Account Deletion Section -->
+            <div class="mt-5 pt-4 border-top">
+                <h5 class="text-danger mb-3">Danger Zone</h5>
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle me-2"></i>Delete Account</h6>
+                    <p class="mb-3">This will permanently delete your account and all associated data. This action cannot be undone.</p>
+                    <button type="button"
+                            class="btn btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteAccountModal">
+                        <i class="fas fa-trash-alt me-2"></i>Delete My Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteAccountModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Account Deletion
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete your account? This action will:</p>
+                <ul>
+                    <li>Permanently delete your profile</li>
+                    <li>Remove all your personal information</li>
+                    <li>Delete all your friendships and connections</li>
+                </ul>
+                <p class="fw-bold">This action cannot be undone.</p>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Warning:</strong> All your data will be permanently lost.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <form method="post" action="{% url 'profiles:delete_account' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt me-2"></i>Yes, Delete My Account
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
