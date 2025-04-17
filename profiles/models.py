@@ -35,6 +35,45 @@ class UserProfile(models.Model):
             friends.append(friendship.from_user)
 
         return friends
+
+    def get_friendship_status(self, other_profile):
+        """
+        Returns the friendship status between this user and another profile
+        Possible returns: 'friends', 'request_sent', 'request_received', or None
+        """
+        # Check if they're already friends
+        if Friendship.objects.filter(
+                (Q(from_user=self, to_user=other_profile, accepted=True) |
+                 Q(from_user=other_profile, to_user=self, accepted=True))
+        ).exists():
+            return 'friends'
+
+        # Check if current user sent a request
+        if Friendship.objects.filter(
+                from_user=self,
+                to_user=other_profile,
+                accepted=False
+        ).exists():
+            return 'request_sent'
+
+        # Check if current user received a request
+        if Friendship.objects.filter(
+                from_user=other_profile,
+                to_user=self,
+                accepted=False
+        ).exists():
+            return 'request_received'
+
+        # No friendship or requests exist
+        return None
+
+    def is_friends_with(self, other_profile):
+        """Check if friends with another user"""
+        return Friendship.objects.filter(
+            (Q(from_user=self, to_user=other_profile, accepted=True) |
+             Q(from_user=other_profile, to_user=self, accepted=True))
+        ).exists()
+
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
@@ -47,8 +86,6 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s profile"
-
-    # ... (keep all your existing methods) ...
 
 
 class Friendship(models.Model):

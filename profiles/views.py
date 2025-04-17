@@ -101,37 +101,48 @@ def friend_list(request):
         'query': query
     })
 
+
 @login_required
 def send_friend_request(request, username):
     if request.method == 'POST':
         try:
-            to_user = UserProfile.objects.get(user__username=username)
-        except UserProfile.DoesNotExist:
+            to_user = User.objects.get(username=username)
+            to_profile = to_user.userprofile
+        except (User.DoesNotExist, UserProfile.DoesNotExist):
             messages.error(request, "The user you're trying to add doesn't exist.")
             return redirect('profiles:friend_list')
 
-        from_user = request.user.userprofile
+        from_profile = request.user.userprofile
 
-        if from_user == to_user:
+        if from_profile == to_profile:
             messages.error(request, "You cannot send a friend request to yourself.")
-        elif from_user.get_friendship_status(to_user) == 'request_sent':
+            return redirect('profiles:profile', username=username)
+
+        status = from_profile.get_friendship_status(to_profile)
+
+        if status == 'friends':
+            messages.info(request, f"You are already friends with {username}.")
+        elif status == 'request_sent':
             messages.warning(request, "Friend request already sent.")
-        elif from_user.get_friendship_status(to_user) == 'request_received':
+        elif status == 'request_received':
             try:
-                friendship = Friendship.objects.get(from_user=to_user, to_user=from_user)
+                friendship = Friendship.objects.get(
+                    from_user=to_profile,
+                    to_user=from_profile
+                )
                 friendship.accepted = True
                 friendship.save()
                 messages.success(request, f"You are now friends with {username}!")
             except Friendship.DoesNotExist:
                 messages.error(request, "Friend request not found.")
-        elif from_user.get_friendship_status(to_user) == 'friends':
-            messages.info(request, f"You are already friends with {username}.")
         else:
-            Friendship.objects.create(from_user=from_user, to_user=to_user)
+            Friendship.objects.create(
+                from_user=from_profile,
+                to_user=to_profile
+            )
             messages.success(request, f"Friend request sent to {username}!")
 
     return redirect('profiles:profile', username=username)
-
 
 @login_required
 def respond_friend_request(request, request_id, action):
@@ -211,7 +222,7 @@ def delete_account(request):
         user.delete()
 
         messages.success(request, f'Your account ({username}) has been permanently deleted.')
-        return redirect('home')  # Redirect to your home page or login page
+        return redirect('login')  # Redirect to Django's built-in login page
 
     # If not a POST request, redirect to settings
     return redirect('profiles:settings')
