@@ -1,31 +1,35 @@
-# gmail_utils.py
-# email content: This is a test body from Django
-import base64
-import os
-from email.mime.text import MIMEText
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from django.template.loader import render_to_string
+from django.conf import settings
+import base64
+import os
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
-def send_notification_email(to, subject, body):
-    creds = None
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    else:
-        raise Exception("Missing token.json. Run OAuth flow first.")
-
+def get_gmail_service():
+    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     service = build('gmail', 'v1', credentials=creds)
+    return service
 
-    message = MIMEText(body)
-    message['to'] = to
-    message['from'] = "me"
-    message['subject'] = subject
+def send_gmail(to_email, subject, body, html_body=None):
+    service = get_gmail_service()
 
-    encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    create_message = {
-        'raw': encoded_message
-    }
+    message = MIMEMultipart("alternative")
+    message["to"] = to_email
+    message["subject"] = subject
 
-    send_message = service.users().messages().send(userId="me", body=create_message).execute()
-    print(f"Email sent! Message ID: {send_message['id']}")
+    # Plain version
+    part1 = MIMEText(body, "plain")
+    message.attach(part1)
+
+    # HTML version
+    if html_body:
+        part2 = MIMEText(html_body, "html")
+        message.attach(part2)
+
+    raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
+    message_body = {'raw': raw_message}
+    service.users().messages().send(userId="me", body=message_body).execute()

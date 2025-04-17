@@ -35,3 +35,5 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['start_time']
+
+    notified = models.BooleanField(default=False)
