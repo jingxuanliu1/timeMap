@@ -1,5 +1,5 @@
-# Normalize all text files (fix line endings across OS)
-* text=auto
+# Normalize all text files to use LF in the repository
+* text=auto eol=lf
 
 # Explicitly set line endings to LF for code files
 *.py     text eol=lf
@@ -25,7 +25,7 @@
 *.jpg    binary
 *.jpeg   binary
 *.gif    binary
-*.svg    text
+*.svg    text eol=lf
 *.ico    binary
 *.pdf    binary
 *.woff   binary
