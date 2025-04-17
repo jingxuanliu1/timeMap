@@ -43,7 +43,7 @@
             <h5 class="mb-1 text-white">{{ task.title }}</h5>
             {% if task.start_time and task.end_time %}
               <small class="text-light">
-                {{ task.start_time|date:"g:i A" }} - {{ task.end_time|date:"g:i A" }}
+                {{ task.start_time|date:"g:i A" }} - {{ task.end_time|date:"g:i A" }} | Status: {% if task.completed %}Completed{% else %}Pending{% endif %}
               </small>
             {% elif task.start_time %}
               <small class="text-light">{{ task.start_time|date:"g:i A" }}</small>
@@ -63,7 +63,7 @@
         </div>
       </div>
     {% empty %}
-      <p class="text-muted">No tasks for today.</p>
+      <p class="text-muted">No tasks for today</p>
     {% endfor %}
   </div>
 

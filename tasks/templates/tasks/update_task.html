@@ -3,45 +3,92 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Update Task: {{ task.title }}</h2>
+<div class="tasks-background">
+  <div class="container mt-5 mb-5">
+  <h2 class="mb-4 text-center">Update Task</h2>
   <form method="POST" id="task-form">
     {% csrf_token %}
     <input type="hidden" name="selected_date" value="{{ selected_date }}">
     <input type="hidden" name="start_date" value="{{ start_date }}">
-    {% for field in form %}
-      {% if field.name != 'location' and field.name != 'start_location' and field.name != 'latitude' and field.name != 'longitude' and field.name != 'latitude2' and field.name != 'longitude2' %}
-        <div class="mb-3">
-          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-          {{ field }}
-          {% if field.errors %}
-            <div class="text-danger">
-              {{ field.errors }}
-            </div>
-          {% endif %}
-        </div>
-      {% endif %}
-    {% endfor %}
 
-    <div class="mb-3">
-      <label for="location-input2" class="form-label">Start Location (optional)</label>
-      <input type="text" id="location-input2" name="start_location" class="form-control"
-             placeholder="Enter Start location" value="{{ task.start_location|default:'' }}">
-      <label for="location-input" class="form-label">End Location (optional)</label>
-      <input type="text" id="location-input" name="location" class="form-control"
-             placeholder="Enter End location" value="{{ task.location|default:'' }}">
-      <input type="hidden" id="id_latitude" name="latitude" value="{{ task.latitude|default:'' }}">
-      <input type="hidden" id="id_longitude" name="longitude" value="{{ task.longitude|default:'' }}">
-      <input type="hidden" id="id_latitude2" name="latitude2" value="{{ task.latitude2|default:'' }}">
-      <input type="hidden" id="id_longitude2" name="longitude2" value="{{ task.longitude2|default:'' }}">
+    <div class="row">
+
+<!-- LEFT: Title, Completed?, Description, Time -->
+<div class="col-md-6">
+<!-- Title + Completed row -->
+        <div class="row mb-3">
+          <div class="col-8">
+            <div class="mb-3">
+              <label for="id_title" class="form-label">Title</label>
+              {{ form.title }}
+              {% if form.title.errors %}
+                <div class="text-danger">{{ form.title.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="mb-3">
+              <label for="id_completed" class="form-label">Completed?</label>
+              <div class="form-check form-switch mt-1">
+                {{ form.completed }}
+              </div>
+              {% if form.completed.errors %}
+                <div class="text-danger">{{ form.completed.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+  <!-- Description (always below label) -->
+  <div class="mb-3">
+    <label for="id_description" class="form-label">Description</label><br>
+    {{ form.description }}
+    {% if form.description.errors %}
+      <div class="text-danger">{{ form.description.errors }}</div>
+    {% endif %}
+  </div>
+
+  <!-- Time Range with Dash -->
+  <div class="mb-3">
+    <label class="form-label">Time</label>
+    <div class="d-flex align-items-center gap-2">
+      {{ form.start_time }}
+      <span class="mx-2">–</span>
+      {{ form.end_time }}
+    </div>
+    {% if form.start_time.errors %}
+      <div class="text-danger">{{ form.start_time.errors }}</div>
+    {% endif %}
+    {% if form.end_time.errors %}
+      <div class="text-danger">{{ form.end_time.errors }}</div>
+    {% endif %}
+  </div>
+</div>
+
+      <!-- RIGHT: Location fields + Map -->
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label">Start Location</label>
+          <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location">
+          <label class="form-label mt-2">End Location</label>
+          <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location">
+
+          <!-- Hidden location fields -->
+          <input type="hidden" id="id_latitude" name="latitude">
+          <input type="hidden" id="id_longitude" name="longitude">
+          <input type="hidden" id="id_latitude2" name="latitude2">
+          <input type="hidden" id="id_longitude2" name="longitude2">
+        </div>
+
+        <!-- Map -->
+        <div id="map" style="height: 300px; width: 100%; margin-bottom: 10px;"></div>
+        <div id="travel_time" class="text-muted mb-2"></div>
+      </div>
     </div>
 
-    {% if task.location or task.start_location %}
-    <div id="map" style="height: 400px; width: 100%; margin-bottom: 20px;"></div>
-    <div id="travel_time"></div>
-    {% endif %}
-
-    <button type="submit" class="btn btn-primary">Update Task</button>
+    <div class="text-center mt-4">
+      <button type="submit" class="btn btn-primary px-4">Save Task</button>
+    </div>
   </form>
 </div>
 {% endblock %}
@@ -265,3 +312,4 @@
 </script>
 {% endif %}
 {% endblock %}
+</div>

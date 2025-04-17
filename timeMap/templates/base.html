@@ -99,30 +99,30 @@
               <b>LINKS</b>
               <hr />
               <p><a class="nav-link" href="{% url 'home.about' %}">About</a></p>
-            </div>
-            <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mb-4">
-              <b>CONTACT</b>
-              <hr />
-              <p><i class="fas fa-home me-2"></i> Atlanta, GA 30332</p>
-              <p><i class="fas fa-envelope me-2"></i> odproject2340@gmail.com</p>
-              <p><i class="fas fa-phone me-2"></i> +1 (404) 894-2000</p>
-            </div>
-          </div>
         </div>
-      </section>
+        <div class="col-12 col-md-3 col-lg-3 col-xl-3 mb-4">
+          <b>CONTACT</b>
+          <hr />
+          <p><i class="fas fa-home me-2"></i> Atlanta, GA 30332</p>
+          <p><i class="fas fa-envelope me-2"></i> CS2340PriyanshuBestTA@gmail.com</p>
+          <p><i class="fas fa-phone me-2"></i> +1 (404) 894-2000</p>
+        </div>
+      </div>
+    </div>
+  </section>
       <section class="p-3 ms-footer-bottom bg-dark">
-        <div class="container d-flex justify-content-between">
-          <div class="me-5 text-white">
-            <span>DESIGNED BY
+<div class="container d-flex flex-column flex-md-row justify-content-between align-items-center align-items-md-start">
+    <div class="designed-by text-white text-center text-md-start">
+      <span>DESIGNED BY</span><br class="d-block d-md-none" />
+      <span class="designers">
               <a href="https://www.linkedin.com/in/hyomin-jin-180230351/" target="_blank">Hyomin Jin</a>,
               <a href="https://www.linkedin.com/in/jenny-huynh-5ab5b9253/" target="_blank">Jenny Huynh</a>,
               <a href="https://www.linkedin.com/in/jing-xuan-liu-b24b28248/" target="_blank">Jingxuan Liu</a>,
               <a href="https://www.linkedin.com/in/shi-jin-151b6832b/" target="_blank">Shi Jin</a> &
               <a href="https://www.linkedin.com/in/tucker-albaugh-3b322732b/" target="_blank">Tucker Mead Albaugh</a>
-            </span>
+        </span>
           </div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span class="text-white">© Copyright - 2025</span>
+          <div class="d-flex flex-column flex-md-row align-items-center mt-3 mt-md-0">
             <!-- Debug: Check if user is authenticated -->
             <span class="text-white" style="margin-left: 18px;">
               Debug: Authenticated={{ user.is_authenticated }}
