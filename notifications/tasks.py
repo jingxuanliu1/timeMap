@@ -4,8 +4,9 @@ from celery import shared_task
 from django.utils import timezone
 from datetime import timedelta
 from tasks.models import Task
-from gmail_utils import send_gmail  # Gmail API
+from notifications.gmail_utils import send_gmail
 from django.template.loader import render_to_string
+from django.contrib.auth.models import User
 
 @shared_task
 def send_upcoming_task_notifications():
@@ -38,3 +39,28 @@ def send_upcoming_task_notifications():
 
             task.notified = True
             task.save()
+
+
+@shared_task
+def send_daily_recaps():
+    today = timezone.localdate()
+    users = User.objects.all()
+
+    for user in users:
+        tasks = Task.objects.filter(user=user, completed=True, start_time__date=today)
+        if tasks.exists():
+            html_content = render_to_string('notifications/daily_recap_email.html', {
+                'user': user,
+                'tasks': tasks,
+                'date': today
+            })
+
+            plain_text = f"Hi {user.username}, here’s what you completed today:\n" + \
+                         "\n".join([f"- {t.title}" for t in tasks])
+
+            send_gmail(
+                to_email=user.email,
+                subject=f"[TimeMap] Daily Recap for {today.strftime('%B %d, %Y')}",
+                body=plain_text,
+                html_body=html_content
+            )
