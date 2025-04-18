@@ -3,16 +3,16 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-def get_urlpatterns():
-    return [
-        path('admin/', admin.site.urls),
-        path('', include('home.urls')),
-        path('tasks/', include('tasks.urls')),
-        path('accounts/', include('django.contrib.auth.urls')),
-        path('notifications/', include('notifications.urls')),
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('home.urls')),  # Home app URLs
+    path('tasks/', include('tasks.urls')),  # Tasks app URLs
+    path('accounts/', include('django.contrib.auth.urls')),  # Authentication URLs
+    path('notifications/', include('notifications.urls')),  # Notifications app URLs
+    path('profiles/', include('profiles.urls')),  # Profiles app URLs
+]
 
-    ]
-
-urlpatterns = get_urlpatterns()
+# Static and media files in development
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

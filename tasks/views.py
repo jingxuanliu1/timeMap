@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.urls import reverse
 
+# View to display all tasks
 @login_required
 def index(request):
     # Get both selected_date and start_date from parameters
@@ -19,6 +20,8 @@ def index(request):
         selected_date = timezone.make_aware(datetime.combine(selected_date, datetime.min.time())).date()
     except (ValueError, TypeError):
         selected_date = timezone.localdate()
+    tasks = Task.objects.filter(user=request.user).order_by('start_time')  # Get tasks for the logged-in user
+    completed_count = Task.objects.filter(user=request.user).filter(completed=True).count()
 
     # Parse start_date, default to today
     try:
@@ -46,9 +49,10 @@ def index(request):
         'selected_date': selected_date.strftime('%Y-%m-%d'),
         'start_date': start_date.strftime('%Y-%m-%d'),
         'display_date': f"{selected_date.strftime('%B')} {selected_date.day}, {selected_date.year}",
+        'completed_count': completed_count
     })
 
-@login_required
+# View to create a new task
 @login_required
 def create_task(request):
     selected_date = request.GET.get('selected_date', '')
@@ -75,7 +79,6 @@ def create_task(request):
         'start_date': start_date
     })
 
-
 @login_required
 def update_task(request, task_id):
     task = Task.objects.get(id=task_id, user=request.user)
@@ -86,8 +89,16 @@ def update_task(request, task_id):
         if form.is_valid():
             task = form.save(commit=False)
             task.notify_before = int(form.cleaned_data['notify_before']) if form.cleaned_data['notify_before'] else None
-            task.latitude = form.cleaned_data.get('latitude')
-            task.longitude = form.cleaned_data.get('longitude')
+
+            if 'latitude' in form.cleaned_data:
+                task.latitude = form.cleaned_data.get('latitude')
+            if 'longitude' in form.cleaned_data:
+                task.longitude = form.cleaned_data.get('longitude')
+            if 'latitude2' in form.cleaned_data:
+                task.latitude2 = form.cleaned_data.get('latitude2')
+            if 'longitude2' in form.cleaned_data:
+                task.longitude2 = form.cleaned_data.get('longitude2')
+
             task.save()
             return redirect(f"{reverse('tasks:index')}?selected_date={selected_date}&start_date={start_date}")
         else:

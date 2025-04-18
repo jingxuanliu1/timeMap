@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'profiles',
     'home',
     'tasks',
     'notifications',
@@ -99,7 +100,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'odproject2340@gmail.com'
-EMAIL_HOST_PASSWORD = 'iufl qdbe yfgr zore' # used the app password
+EMAIL_HOST_PASSWORD = 'iufl qdbe yfgr zore'  # used the app password
 DEFAULT_FROM_EMAIL = 'odproject2340@gmail.com'
 
 # Media files

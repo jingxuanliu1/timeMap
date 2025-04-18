@@ -1,0 +1,34 @@
+# Normalize all text files to use LF in the repository
+* text=auto eol=lf
+
+# Explicitly set line endings to LF for code files
+*.py     text eol=lf
+*.html   text eol=lf
+*.css    text eol=lf
+*.js     text eol=lf
+*.json   text eol=lf
+*.ts     text eol=lf
+*.jsx    text eol=lf
+*.tsx    text eol=lf
+*.yml    text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+
+# Treat shell scripts correctly
+*.sh     text eol=lf
+
+# Treat batch scripts for Windows (use CRLF)
+*.bat    text eol=crlf
+
+# Prevent Git from messing with images or binaries
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.svg    text eol=lf
+*.ico    binary
+*.pdf    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.eot    binary

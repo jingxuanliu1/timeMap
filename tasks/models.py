@@ -1,13 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Task(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name='tasks')  # Link to the user
     title = models.CharField(max_length=255)
     description = models.TextField()
+    start_location = models.CharField(max_length=255, blank=True)
     location = models.CharField(max_length=255, blank=True)  # Class location or any place
     latitude = models.FloatField(null=True, blank=True)  # Latitude coordinate
     longitude = models.FloatField(null=True, blank=True)  # Longitude coordinate
+    latitude2 = models.FloatField(null=True, blank=True)  # Latitude coordinate
+    longitude2 = models.FloatField(null=True, blank=True)  # Longitude coordinate
     start_time = models.DateTimeField()  # When the task starts
     end_time = models.DateTimeField()  # When the task should end
     completed = models.BooleanField(default=False)
@@ -27,6 +31,8 @@ class Task(models.Model):
         help_text="Send notification this many minutes before start"
     )
 
+    notified = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.title} - {self.start_time}"
 
@@ -35,5 +41,3 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['start_time']
-
-    notified = models.BooleanField(default=False)

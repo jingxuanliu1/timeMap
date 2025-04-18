@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4><i class="fas fa-search me-2"></i> Find Friends</h4>
+        </div>
+        <div class="card-body">
+            <form method="get" action="{% url 'profiles:friend_list' %}" class="mb-3">
+                <div class="input-group">
+                    <input type="text" name="q" value="{{ query }}"
+                           class="form-control" placeholder="Search by username...">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </form>
+
+            {% if query and search_results %}
+                <div class="list-group mb-4">
+                    {% for user in search_results %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            {% if user.userprofile.profile_image %}
+                                <img src="{{ user.userprofile.profile_image.url }}"
+                                     class="rounded-circle me-3" width="40" height="40">
+                            {% else %}
+                                <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center"
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-user text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div>
+                                <a href="{% url 'profiles:profile' user.username %}"
+                                   class="text-decoration-none fw-bold">
+                                    {{ user.username }}
+                                </a>
+                            </div>
+                        </div>
+                        <div>
+                            {% if user in friends %}
+                                <span class="badge bg-success">Friends</span>
+                            {% else %}
+                                {% with status=request.user.userprofile.get_friendship_status %}
+                                    {% if status == 'request_sent' %}
+                                        <button class="btn btn-secondary btn-sm" disabled>
+                                            <i class="fas fa-clock"></i> Request Sent
+                                        </button>
+                                    {% elif status == 'request_received' %}
+                                        <div class="btn-group">
+                                            <form method="post"
+                                                  action="{% url 'profiles:respond_friend_request' user.userprofile.friendship_received.get.id 'accept' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-check"></i> Accept
+                                                </button>
+                                            </form>
+                                            <form method="post"
+                                                  action="{% url 'profiles:respond_friend_request' user.userprofile.friendship_received.get.id 'reject' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                    <i class="fas fa-times"></i> Decline
+                                                </button>
+                                            </form>
+                                        </div>
+                                    {% else %}
+                                        <form method="post"
+                                              action="{% url 'profiles:send_friend_request' user.username %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-user-plus"></i> Add Friend
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% elif query %}
+                <div class="alert alert-info">
+                    No users found matching "{{ query }}"
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Friend Requests Section -->
+        <div class="col-md-6">
+            <div class="card mb-4 shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="fas fa-user-clock me-2"></i> Friend Requests</h4>
+                </div>
+                <div class="card-body">
+                    {% if pending_requests %}
+                        {% for request in pending_requests %}
+                        <div class="d-flex justify-content-between align-items-center mb-3 p-2 border rounded">
+                            <div class="d-flex align-items-center">
+                                {% if request.from_user.profile_image %}
+                                    <img src="{{ request.from_user.profile_image.url }}"
+                                         class="rounded-circle me-3" width="40" height="40">
+                                {% else %}
+                                    <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center"
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <a href="{% url 'profiles:profile' request.from_user.user.username %}"
+                                       class="text-decoration-none fw-bold">
+                                        {{ request.from_user.user.username }}
+                                    </a>
+                                    <small class="text-muted d-block">Sent {{ request.created_at|timesince }} ago</small>
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <form method="post"
+                                      action="{% url 'profiles:respond_friend_request' request.id 'accept' %}"
+                                      class="mb-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                </form>
+                                <form method="post"
+                                      action="{% url 'profiles:respond_friend_request' request.id 'reject' %}"
+                                      class="mb-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-times"></i> Decline
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                            <p class="mb-0">No pending friend requests</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Friends List Section -->
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="fas fa-user-friends me-2"></i> Your Friends</h4>
+                </div>
+                <div class="card-body">
+                    {% if friends %}
+                        <ul class="list-group">
+                            {% for friend in friends %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    {% if friend.userprofile.profile_image %}
+                                        <img src="{{ friend.userprofile.profile_image.url }}"
+                                             class="rounded-circle me-3" width="40" height="40">
+                                    {% else %}
+                                        <div class="rounded-circle bg-light me-3 d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <a href="{% url 'profiles:profile' friend.username %}"
+                                       class="text-decoration-none fw-bold">
+                                        {{ friend.username }}
+                                    </a>
+                                </div>
+                                <form method="post"
+                                      action="{% url 'profiles:remove_friend' friend.username %}"
+                                      class="mb-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Are you sure you want to remove this friend?')">
+                                        <i class="fas fa-user-minus"></i> Remove
+                                    </button>
+                                </form>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-users fa-2x text-muted mb-2"></i>
+                            <p class="mb-0">You haven't added any friends yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
