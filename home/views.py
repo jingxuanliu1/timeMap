@@ -46,7 +46,8 @@ def register(request):
         'title': 'Register',
         'form': form,
     }
-    return render(request, 'home/register.html', {'template_data': template_data})
+    return render(request, 'home/register.html', template_data)
+
 
 def friends(request):
     template_data = {
