@@ -54,6 +54,8 @@ def index(request):
 
 # View to create a new task
 @login_required
+@login_required
+@login_required
 def create_task(request):
     selected_date = request.GET.get('selected_date', '')
     start_date = request.GET.get('start_date', timezone.localdate().strftime('%Y-%m-%d'))
@@ -65,10 +67,19 @@ def create_task(request):
             task.user = request.user
             task.latitude = form.cleaned_data.get('latitude')
             task.longitude = form.cleaned_data.get('longitude')
+            task.latitude2 = form.cleaned_data.get('latitude2')
+            task.longitude2 = form.cleaned_data.get('longitude2')
             task.notify_before = int(form.cleaned_data['notify_before']) if form.cleaned_data['notify_before'] else None
             task.save()
+
+            # 🔁 사용자 지정 반복 횟수 적용
+            repeat_count = form.cleaned_data.get('repeat_count') or 0
+            if task.recur in ['daily', 'weekly', 'monthly'] and repeat_count > 0:
+                generate_recurring_tasks(task, count=repeat_count)
+
             return redirect(
-                f"{reverse('tasks:index')}?selected_date={request.POST.get('selected_date', '')}&start_date={start_date}")
+                f"{reverse('tasks:index')}?selected_date={request.POST.get('selected_date', '')}&start_date={start_date}"
+            )
     else:
         form = TaskForm()
 
@@ -79,32 +90,76 @@ def create_task(request):
         'start_date': start_date
     })
 
+
+def generate_recurring_tasks(task, count=5):
+    occurrences = {
+        'daily': lambda n: task.start_time + timedelta(days=n),
+        'weekly': lambda n: task.start_time + timedelta(weeks=n),
+        'monthly': lambda n: task.start_time + timedelta(days=30 * n),
+    }
+
+    recur_type = task.recur
+    if recur_type not in occurrences:
+        return
+
+    for i in range(1, count + 1):
+        Task.objects.create(
+            user=task.user,
+            title=task.title,
+            description=task.description,
+            location=task.location,
+            start_location=task.start_location,
+            start_time=occurrences[recur_type](i),
+            end_time=occurrences[recur_type](i) + (task.end_time - task.start_time),
+            completed=False,
+            notify_before=task.notify_before,
+            latitude=task.latitude,
+            longitude=task.longitude,
+            latitude2=task.latitude2,
+            longitude2=task.longitude2,
+            recur='none',  # 생성된 task는 반복하지 않음
+        )
+
+
+@login_required
 @login_required
 def update_task(request, task_id):
     task = Task.objects.get(id=task_id, user=request.user)
     selected_date = request.GET.get('selected_date', timezone.localdate().strftime('%Y-%m-%d'))
     start_date = request.GET.get('start_date', timezone.localdate().strftime('%Y-%m-%d'))
+
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             task = form.save(commit=False)
             task.notify_before = int(form.cleaned_data['notify_before']) if form.cleaned_data['notify_before'] else None
 
-            if 'latitude' in form.cleaned_data:
-                task.latitude = form.cleaned_data.get('latitude')
-            if 'longitude' in form.cleaned_data:
-                task.longitude = form.cleaned_data.get('longitude')
-            if 'latitude2' in form.cleaned_data:
-                task.latitude2 = form.cleaned_data.get('latitude2')
-            if 'longitude2' in form.cleaned_data:
-                task.longitude2 = form.cleaned_data.get('longitude2')
+            task.latitude = form.cleaned_data.get('latitude')
+            task.longitude = form.cleaned_data.get('longitude')
+            task.latitude2 = form.cleaned_data.get('latitude2')
+            task.longitude2 = form.cleaned_data.get('longitude2')
 
             task.save()
+
+            # ✅ 기존 반복 task 삭제 (recur='none' && title+timespan이 같은 future task)
+            Task.objects.filter(
+                user=task.user,
+                title=task.title,
+                recur='none',
+                start_time__gt=task.start_time
+            ).delete()
+
+            # ✅ 새로운 반복 task 생성
+            repeat_count = form.cleaned_data.get('repeat_count') or 0
+            if task.recur in ['daily', 'weekly', 'monthly'] and repeat_count > 0:
+                generate_recurring_tasks(task, count=repeat_count)
+
             return redirect(f"{reverse('tasks:index')}?selected_date={selected_date}&start_date={start_date}")
         else:
             print(form.errors)
     else:
         form = TaskForm(instance=task)
+
     return render(request, 'tasks/update_task.html', {
         'form': form,
         'task': task,
@@ -112,6 +167,7 @@ def update_task(request, task_id):
         'selected_date': selected_date,
         'start_date': start_date
     })
+
 
 @login_required
 def delete_task(request, task_id):

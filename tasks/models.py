@@ -33,6 +33,14 @@ class Task(models.Model):
 
     notified = models.BooleanField(default=False)
 
+    RECUR_CHOICES = [
+        ('none', 'Do not repeat'),
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('monthly', 'Monthly'),
+    ]
+    recur = models.CharField(max_length=10, choices=RECUR_CHOICES, default='none')
+
     def __str__(self):
         return f"{self.title} - {self.start_time}"
 

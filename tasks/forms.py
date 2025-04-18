@@ -42,6 +42,8 @@ class TaskForm(forms.ModelForm):
             'latitude2',
             'longitude2',
             'notify_before',
+            'recur',
+            'repeat_count',
         ]
         widgets = {
             'location': forms.TextInput(attrs={
@@ -53,5 +55,19 @@ class TaskForm(forms.ModelForm):
                 'id': 'location-input2',
                 'class': 'form-control',
                 'placeholder': 'Enter Start location'
-            })
+            }),
+            'recur': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    repeat_count = forms.IntegerField(
+        required=False,
+        label="Repeat how many times?",
+        min_value=1,
+        initial=5,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. 5'
+        })
+    )
+
+
