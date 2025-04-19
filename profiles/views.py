@@ -226,3 +226,19 @@ def delete_account(request):
 
     # If not a POST request, redirect to settings
     return redirect('profiles:settings')
+
+@login_required
+def preferences(request):
+    # Get or create the user's profile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        background = request.POST.get('background', 'purple')
+        profile.background = background
+        profile.save()
+        messages.success(request, 'Preferences saved successfully!')
+        return redirect('profiles:preferences')
+
+    return render(request, 'profiles/preferences.html', {
+        'selected_background': profile.background
+    })

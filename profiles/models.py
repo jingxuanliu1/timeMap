@@ -12,6 +12,18 @@ class UserProfile(models.Model):
     social_media = models.CharField(max_length=100, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True)
+    background = models.CharField(
+        max_length=10,
+        choices=[
+            ('purple', 'Purple'),
+            ('green', 'Green'),
+            ('blue', 'Blue'),
+        ],
+        default='purple',
+    )
+
+    def __str__(self):
+        return f"{self.user.username}'s profile"
 
     def get_friends(self):
         """Returns all accepted friends as UserProfile objects"""

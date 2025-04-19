@@ -58,6 +58,7 @@
                 <ul class="dropdown-menu" aria-labelledby="settingsDropdown">
                   <li><a class="dropdown-item" href="{% url 'profiles:current_profile' %}">Profile</a></li>
                   <li><a class="dropdown-item" href="{% url 'profiles:settings' %}">Account Settings</a></li>
+                  <li><a class="dropdown-item" href="{% url 'profiles:preferences' %}">Preferences</a></li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <form action="{% url 'logout' %}" method="post">
@@ -79,10 +80,10 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="flex-grow-1 {% if request.path == '/tasks/' %}tasks-background{% endif %}">
-      {% block content %}
-      {% endblock %}
-    </div>
+<div class="flex-grow-1 {% if request.path != '/' %}tasks-background theme-{{ request.user.userprofile.background|default:'purple' }}{% endif %}">
+    {% block content %}
+    {% endblock %}
+</div>
     <!-- Footer -->
     <footer class="mt-auto">
       <section class="p-3 ms-footer d-none d-md-block">
