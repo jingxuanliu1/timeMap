@@ -5,6 +5,7 @@ from profiles.forms import CustomUserCreationForm
 from profiles.models import UserProfile
 from django.db import IntegrityError
 from tasks.models import Task
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -49,12 +50,47 @@ def friends(request):
     }
     return render(request, 'home/friends.html', {'template_data': template_data})
 
-
+@login_required
 def leaderboard(request):
+    # Get the current user's profile
+    user_profile = request.user.userprofile
+
+    # Get all friends (using your existing get_friends() method)
+    friends = user_profile.get_friends()
+
+    # Create list of users to rank (current user + friends)
+    users_to_rank = [user_profile.user] + [friend.user for friend in friends]
+
+    # Get completed task count for each user
+    leaderboard_data = []
+    for user in users_to_rank:
+        completed_count = Task.objects.filter(user=user, completed=True).count()
+        leaderboard_data.append({
+            'user': user,
+            'profile': user.userprofile,  # Access profile data
+            'completed_count': completed_count,
+            'is_current_user': user == request.user
+        })
+
+    # Sort by completed tasks (descending)
+    leaderboard_data.sort(key=lambda x: x['completed_count'], reverse=True)
+
+    # Add rank position (handling ties)
+    if leaderboard_data:
+        leaderboard_data[0]['rank'] = 1
+        for i in range(1, len(leaderboard_data)):
+            if leaderboard_data[i]['completed_count'] == leaderboard_data[i - 1]['completed_count']:
+                leaderboard_data[i]['rank'] = leaderboard_data[i - 1]['rank']
+            else:
+                leaderboard_data[i]['rank'] = i + 1
+
     template_data = {
         'title': 'Leaderboard',
+        'leaderboard': leaderboard_data,
+        'has_friends': len(friends) > 0
     }
     return render(request, 'home/leaderboard.html', {'template_data': template_data})
+
 def settings(request):
     # Your settings view logic here
     return render(request, 'home/settings.html', {'title': 'Settings'})
