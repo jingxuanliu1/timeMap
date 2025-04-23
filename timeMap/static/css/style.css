@@ -306,13 +306,45 @@ h2.fw-bold {
   line-height: 1.8;
   text-align: center;
   font-family: 'Roboto Mono', monospace;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 10px;
   white-space: nowrap;
   box-sizing: border-box;
   position: relative;
   z-index: 2;
   margin: 0;
+}
+
+/* Quote styling */
+.quote-box {
+  background-color: #626c9e;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: center;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+  white-space: normal;
+}
+
+.quote-text {
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.quote-author {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Roboto Mono', monospace;
+  font-style: italic;
+  text-align: center;
+  margin: 0; /* Remove default margin to control spacing */
 }
 
 .top-overlay {

@@ -25,3 +25,17 @@ class Task(models.Model):
 
     class Meta:
         ordering = ['start_time']
+
+# class for generating quotes using API
+class Quote(models.Model):
+    quote = models.TextField()
+    author = models.CharField(max_length=100)
+    fetched_date = models.DateField()
+    category = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return f"{self.quote} - {self.author}"
+
+    class Meta:
+        # Ensure only one quote per day
+        unique_together = ['fetched_date']

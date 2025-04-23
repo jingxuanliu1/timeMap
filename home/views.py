@@ -4,10 +4,13 @@ from django.contrib import messages
 from profiles.models import UserProfile
 from django.db import IntegrityError
 from tasks.models import Task
+from tasks.models import Task, Quote  # Added Quote import
 from django.contrib.auth.decorators import login_required
 from profiles.forms import CustomUserCreationForm
 from django.utils import timezone
 from datetime import datetime
+import requests  # Added requests import
+import os  # Added os import
 
 def index(request):
     today = timezone.localdate()  # Get today's date
@@ -16,11 +19,42 @@ def index(request):
         start_time__date=today
     ) if request.user.is_authenticated else []
     completed_count = tasks.filter(completed=True).count() if tasks else 0
+
+    # Fetch or update the daily quote
+    quote_data = None
+    try:
+        # Check if there's a quote for today
+        quote = Quote.objects.filter(fetched_date=today).first()
+        if not quote:
+            # Fetch a new quote from the Quotes API
+            api_url = 'https://api.api-ninjas.com/v1/quotes'
+            headers = {'X-Api-Key': os.getenv('QUOTES_API_KEY')}
+            response = requests.get(api_url, headers=headers)
+
+            if response.status_code == 200:
+                data = response.json()[0]  # Get the first quote
+                # Save the new quote
+                quote = Quote.objects.create(
+                    quote=data['quote'],
+                    author=data['author'],
+                    category=data.get('category', ''),
+                    fetched_date=today
+                )
+        if quote:
+            quote_data = {
+                'quote': quote.quote,
+                'author': quote.author
+            }
+    except Exception as e:
+        # Log the error but don't crash the page
+        print(f"Error fetching quote: {e}")
+
     template_data = {
         'title': 'TimeMap',
         'tasks': tasks,
         'completed_count': completed_count,
-        'today_date': today.strftime("%B %d, %Y")  # Format: "Month Day, Year"
+        'today_date': today.strftime("%B %d, %Y"),  # Format: "Month Day, Year"
+        'quote_data': quote_data
     }
     return render(request, 'home/index.html', {'template_data': template_data})
 
