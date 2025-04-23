@@ -1,11 +1,11 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from profiles.forms import CustomUserCreationForm
 from profiles.models import UserProfile
 from django.db import IntegrityError
 from tasks.models import Task
 from django.contrib.auth.decorators import login_required
+from profiles.forms import CustomUserCreationForm
 
 
 def index(request):

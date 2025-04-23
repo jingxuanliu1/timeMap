@@ -5,28 +5,25 @@ from .models import UserProfile
 
 
 class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(required=True)  # Make sure this is here
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
-            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
-        }
 
     def clean_email(self):
         email = self.cleaned_data['email']
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("This email address is already in use.")
+            raise forms.ValidationError("This email is already in use.")
         return email
 
     def save(self, commit=True):
-        user = super().save(commit=commit)
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']  # Ensure email is saved
         if commit:
-            UserProfile.objects.create(user=user)
+            user.save()
+            # Remove the profile creation here since the signal handles it
         return user
-
 
 class CustomSetPasswordForm(SetPasswordForm):
     def save(self, commit=True):

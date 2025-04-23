@@ -1,4 +1,4 @@
-from django import forms
+'''from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from profiles.models import UserProfile
@@ -25,4 +25,4 @@ class CustomUserCreationForm(UserCreationForm):
                 user=user,
                 gmail=self.cleaned_data['gmail']
             )
-        return user
+        return user'''
