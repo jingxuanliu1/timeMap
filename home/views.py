@@ -6,18 +6,23 @@ from django.db import IntegrityError
 from tasks.models import Task
 from django.contrib.auth.decorators import login_required
 from profiles.forms import CustomUserCreationForm
-
+from django.utils import timezone
+from datetime import datetime
 
 def index(request):
-    tasks = Task.objects.filter(user=request.user) if request.user.is_authenticated else []
+    today = timezone.localdate()  # Get today's date
+    tasks = Task.objects.filter(
+        user=request.user,
+        start_time__date=today
+    ) if request.user.is_authenticated else []
     completed_count = tasks.filter(completed=True).count() if tasks else 0
     template_data = {
         'title': 'TimeMap',
-        'tasks' : tasks,
+        'tasks': tasks,
         'completed_count': completed_count,
+        'today_date': today.strftime("%B %d, %Y")  # Format: "Month Day, Year"
     }
     return render(request, 'home/index.html', {'template_data': template_data})
-
 
 def about(request):
     template_data = {
