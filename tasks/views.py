@@ -6,6 +6,7 @@ from .forms import TaskForm
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.urls import reverse
+from django.db.models import Q
 
 # View to display all tasks
 @login_required
@@ -123,3 +124,26 @@ def delete_task(request, task_id):
     start_date = request.GET.get('start_date', timezone.localdate().strftime('%Y-%m-%d'))
     task.delete()
     return redirect(f"{reverse('tasks:index')}?selected_date={selected_date}&start_date={start_date}")
+
+@login_required
+def task_history(request):
+    query = request.GET.get('q', '')
+    tasks = Task.objects.filter(user=request.user)
+    
+    if query:
+        # Search in title, description, and locations
+        tasks = tasks.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(location__icontains=query) |
+            Q(start_location__icontains=query)
+        )
+    
+    # Order by start_time in descending order (newest first)
+    tasks = tasks.order_by('-start_time')
+    
+    return render(request, 'tasks/task_history.html', {
+        'tasks': tasks,
+        'query': query,
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+    })
