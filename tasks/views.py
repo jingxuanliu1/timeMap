@@ -143,7 +143,7 @@ def update_task(request, task_id):
                 start_time__gt=task.start_time
             ).delete()
 
-            # ✅ 새로운 반복 task 생성
+
             repeat_count = form.cleaned_data.get('repeat_count') or 0
             if task.recur in ['daily', 'weekly', 'monthly'] and repeat_count > 0:
                 generate_recurring_tasks(task, count=repeat_count)
