@@ -7,7 +7,19 @@
     <source src="{% static 'img/rocket_resized.mp4' %}" type="video/mp4">
     Your browser does not support the video tag.
   </video>
-  <div class="completed-tasks-box top-overlay">  <span>Today's completed tasks: {{ template_data.completed_count }} out of {{ template_data.tasks|length }}</span>
+<!-- Quote and Completed Tasks -->
+  <div class="top-overlay">
+    <!-- Daily Quote -->
+    {% if template_data.quote_data %}
+      <div class="quote-box text-center">
+        <p class="quote-text">"{{ template_data.quote_data.quote }}"</p>
+        <p class="quote-author">— {{ template_data.quote_data.author }}</p>
+      </div>
+    {% endif %}
+    <!-- Completed Tasks Today -->
+    <div class="completed-tasks-box mt-2">
+      <span>{{ template_data.today_date }} completed tasks: {{ template_data.completed_count }} out of {{ template_data.tasks|length }}</span>
+    </div>
   </div>
   <!-- Tasks Button -->
   <a href="{% url 'tasks:index' %}" class="task-btn">>> Tasks <<</a>

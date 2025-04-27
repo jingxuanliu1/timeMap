@@ -5,16 +5,21 @@ from .models import UserProfile
 
 
 class CustomUserCreationForm(UserCreationForm):
+<<<<<<< HEAD
     email = forms.EmailField(
         label="Email Address",
         help_text="Please enter your email address.",
         widget=forms.EmailInput(attrs={'class': 'form-control'})
     )
+=======
+    email = forms.EmailField(required=True)  # Make sure this is here
+>>>>>>> main
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
+<<<<<<< HEAD
     def clean_username(self):
         username = self.cleaned_data['username']
         if User.objects.filter(username=username).exists():
@@ -25,19 +30,33 @@ class CustomUserCreationForm(UserCreationForm):
         email = self.cleaned_data['email'].lower()
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("This email address is already in use.")
+=======
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email is already in use.")
+>>>>>>> main
         return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
+<<<<<<< HEAD
         user.email = self.cleaned_data['email']
 
         if commit:
             user.save()
             UserProfile.objects.get_or_create(user=user, defaults={'email': self.cleaned_data['email']})
+=======
+        user.email = self.cleaned_data['email']  # Ensure email is saved
+        if commit:
+            user.save()
+            # Remove the profile creation here since the signal handles it
+>>>>>>> main
         return user
 
 
 class CustomSetPasswordForm(SetPasswordForm):
+<<<<<<< HEAD
     email = forms.EmailField(
         label="Email Address",
         help_text="Please enter your email address.",
@@ -50,25 +69,36 @@ class CustomSetPasswordForm(SetPasswordForm):
             raise forms.ValidationError("This email address is already in use.")
         return email
 
+=======
+>>>>>>> main
     def save(self, commit=True):
         user = super().save(commit=False)
         if commit:
             user.save()
+<<<<<<< HEAD
             UserProfile.objects.get_or_create(
                 user=user,
                 defaults={'email': self.cleaned_data['email']}
             )
+=======
+            UserProfile.objects.get_or_create(user=user)
+>>>>>>> main
         return user
 
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
+<<<<<<< HEAD
         fields = ['phone_number', 'social_media', 'profile_image', 'bio']  # ← email 제거
         widgets = {
             'email': forms.EmailInput(attrs={
                 'class': 'form-control'
             }),
+=======
+        fields = ['phone_number', 'social_media', 'profile_image', 'bio']
+        widgets = {
+>>>>>>> main
             'phone_number': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': '+1234567890'
@@ -88,7 +118,10 @@ class UserProfileForm(forms.ModelForm):
             }),
         }
         labels = {
+<<<<<<< HEAD
             'email': 'Email Address',
+=======
+>>>>>>> main
             'phone_number': 'Phone Number',
             'social_media': 'Social Media Handle',
             'profile_image': 'Profile Image',
@@ -101,11 +134,14 @@ class UserProfileForm(forms.ModelForm):
             'bio': 'Maximum 500 characters',
         }
 
+<<<<<<< HEAD
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             self.fields['email'].initial = self.instance.email
 
+=======
+>>>>>>> main
     def clean_phone_number(self):
         phone = self.cleaned_data.get('phone_number')
         if phone and not phone.startswith('+'):
@@ -123,6 +159,7 @@ class UserProfileForm(forms.ModelForm):
         if image and image.size > 5 * 1024 * 1024:
             raise forms.ValidationError("Image size must be less than 5MB")
         return image
+<<<<<<< HEAD
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -131,3 +168,5 @@ class UserProfileForm(forms.ModelForm):
                 UserProfile.objects.filter(email=email).exists()):
             raise forms.ValidationError("This email address is already in use.")
         return email
+=======
+>>>>>>> main

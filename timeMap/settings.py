@@ -122,3 +122,5 @@ CELERY_BEAT_SCHEDULE = {
 
 # Google Maps API Key
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+# Quotes API key
+QUOTES_API_KEY = os.getenv('QUOTES_API_KEY')

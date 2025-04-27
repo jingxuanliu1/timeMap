@@ -1,18 +1,68 @@
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.contrib import messages
+<<<<<<< HEAD
 from django.contrib.auth import authenticate, login
 from profiles.forms import CustomUserCreationForm
 from profiles.models import UserProfile
 from django.db import IntegrityError
 from tasks.models import Task
+=======
+from profiles.models import UserProfile
+from django.db import IntegrityError
+from tasks.models import Task
+from tasks.models import Task, Quote  # Added Quote import
+from django.contrib.auth.decorators import login_required
+from profiles.forms import CustomUserCreationForm
+from django.utils import timezone
+from datetime import datetime
+import requests  # Added requests import
+import os  # Added os import
+>>>>>>> main
 
 def index(request):
-    tasks = Task.objects.filter(user=request.user) if request.user.is_authenticated else []
+    today = timezone.localdate()  # Get today's date
+    tasks = Task.objects.filter(
+        user=request.user,
+        start_time__date=today
+    ) if request.user.is_authenticated else []
     completed_count = tasks.filter(completed=True).count() if tasks else 0
+
+    # Fetch or update the daily quote
+    quote_data = None
+    try:
+        # Check if there's a quote for today
+        quote = Quote.objects.filter(fetched_date=today).first()
+        if not quote:
+            # Fetch a new quote from the Quotes API
+            api_url = 'https://api.api-ninjas.com/v1/quotes'
+            headers = {'X-Api-Key': os.getenv('QUOTES_API_KEY')}
+            response = requests.get(api_url, headers=headers)
+
+            if response.status_code == 200:
+                data = response.json()[0]  # Get the first quote
+                # Save the new quote
+                quote = Quote.objects.create(
+                    quote=data['quote'],
+                    author=data['author'],
+                    category=data.get('category', ''),
+                    fetched_date=today
+                )
+        if quote:
+            quote_data = {
+                'quote': quote.quote,
+                'author': quote.author
+            }
+    except Exception as e:
+        # Log the error but don't crash the page
+        print(f"Error fetching quote: {e}")
+
     template_data = {
         'title': 'TimeMap',
         'tasks': tasks,
         'completed_count': completed_count,
+        'today_date': today.strftime("%B %d, %Y"),  # Format: "Month Day, Year"
+        'quote_data': quote_data
     }
     return render(request, 'home/index.html', {'template_data': template_data})
 
@@ -55,9 +105,47 @@ def friends(request):
     }
     return render(request, 'home/friends.html', {'template_data': template_data})
 
+<<<<<<< HEAD
+=======
+@login_required
+>>>>>>> main
 def leaderboard(request):
+    # Get the current user's profile
+    user_profile = request.user.userprofile
+
+    # Get all friends (using your existing get_friends() method)
+    friends = user_profile.get_friends()
+
+    # Create list of users to rank (current user + friends)
+    users_to_rank = [user_profile.user] + [friend.user for friend in friends]
+
+    # Get completed task count for each user
+    leaderboard_data = []
+    for user in users_to_rank:
+        completed_count = Task.objects.filter(user=user, completed=True).count()
+        leaderboard_data.append({
+            'user': user,
+            'profile': user.userprofile,  # Access profile data
+            'completed_count': completed_count,
+            'is_current_user': user == request.user
+        })
+
+    # Sort by completed tasks (descending)
+    leaderboard_data.sort(key=lambda x: x['completed_count'], reverse=True)
+
+    # Add rank position (handling ties)
+    if leaderboard_data:
+        leaderboard_data[0]['rank'] = 1
+        for i in range(1, len(leaderboard_data)):
+            if leaderboard_data[i]['completed_count'] == leaderboard_data[i - 1]['completed_count']:
+                leaderboard_data[i]['rank'] = leaderboard_data[i - 1]['rank']
+            else:
+                leaderboard_data[i]['rank'] = i + 1
+
     template_data = {
         'title': 'Leaderboard',
+        'leaderboard': leaderboard_data,
+        'has_friends': len(friends) > 0
     }
     return render(request, 'home/leaderboard.html', {'template_data': template_data})
 

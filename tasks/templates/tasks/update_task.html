@@ -1,121 +1,118 @@
-<!-- tasks/templates/tasks/update_task.html -->
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="tasks-background">
   <div class="container mt-5 mb-5">
-  <h2 class="mb-4 text-center">Update Task</h2>
-  <form method="POST" id="task-form">
-    {% csrf_token %}
-    <input type="hidden" name="selected_date" value="{{ selected_date }}">
-    <input type="hidden" name="start_date" value="{{ start_date }}">
+    <h2 class="mb-4 text-center">Update Task</h2>
+    <form method="POST" id="task-form">
+      {% csrf_token %}
+      <input type="hidden" name="selected_date" value="{{ selected_date }}">
+      <input type="hidden" name="start_date" value="{{ start_date }}">
 
-    <div class="row">
-
-<!-- LEFT: Title, Completed?, Description, Time -->
-<div class="col-md-6">
-<!-- Title + Completed row -->
-        <div class="row mb-3">
-          <div class="col-8">
-            <div class="mb-3">
-              <label for="id_title" class="form-label">Title</label>
-              {{ form.title }}
-              {% if form.title.errors %}
-                <div class="text-danger">{{ form.title.errors }}</div>
-              {% endif %}
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="mb-3">
-              <label for="id_completed" class="form-label">Completed?</label>
-              <div class="form-check form-switch mt-1">
-                {{ form.completed }}
+      <div class="row">
+        <!-- LEFT: Title, Completed?, Description, Time -->
+        <div class="col-md-6">
+          <!-- Title + Completed row -->
+          <div class="row mb-3">
+            <div class="col-8">
+              <div class="mb-3">
+                <label for="id_title" class="form-label">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                  <div class="text-danger">{{ form.title.errors }}</div>
+                {% endif %}
               </div>
-              {% if form.completed.errors %}
-                <div class="text-danger">{{ form.completed.errors }}</div>
-              {% endif %}
             </div>
+            <div class="col-4">
+              <div class="mb-3">
+                <label for="id_completed" class="form-label">Completed?</label>
+                <div class="form-check form-switch mt-1">
+                  {{ form.completed }}
+                </div>
+                {% if form.completed.errors %}
+                  <div class="text-danger">{{ form.completed.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="id_description" class="form-label">Description</label><br>
+            {{ form.description }}
+            {% if form.description.errors %}
+              <div class="text-danger">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Time Range with Dash -->
+          <div class="mb-3">
+            <label class="form-label">Time</label>
+            <div class="d-flex align-items-center gap-2">
+              {{ form.start_time }}
+              <span class="mx-2">–</span>
+              {{ form.end_time }}
+            </div>
+            {% if form.start_time.errors %}
+              <div class="text-danger">{{ form.start_time.errors }}</div>
+            {% endif %}
+            {% if form.end_time.errors %}
+              <div class="text-danger">{{ form.end_time.errors }}</div>
+            {% endif %}
           </div>
         </div>
 
-  <!-- Description (always below label) -->
-  <div class="mb-3">
-    <label for="id_description" class="form-label">Description</label><br>
-    {{ form.description }}
-    {% if form.description.errors %}
-      <div class="text-danger">{{ form.description.errors }}</div>
-    {% endif %}
-  </div>
+        <!-- RIGHT: Location fields + Map -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Start Location</label>
+            <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location" value="{{ task.start_location|default:'' }}">
+            <label class="form-label mt-2">End Location</label>
+            <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location" value="{{ task.location|default:'' }}">
 
-  <!-- Time Range with Dash -->
-  <div class="mb-3">
-    <label class="form-label">Time</label>
-    <div class="d-flex align-items-center gap-2">
-      {{ form.start_time }}
-      <span class="mx-2">–</span>
-      {{ form.end_time }}
-    </div>
-    {% if form.start_time.errors %}
-      <div class="text-danger">{{ form.start_time.errors }}</div>
-    {% endif %}
-    {% if form.end_time.errors %}
-      <div class="text-danger">{{ form.end_time.errors }}</div>
-    {% endif %}
-  </div>
-</div>
+            <!-- Hidden location fields -->
+            <input type="hidden" id="id_latitude" name="latitude" value="{{ task.latitude|default:'' }}">
+            <input type="hidden" id="id_longitude" name="longitude" value="{{ task.longitude|default:'' }}">
+            <input type="hidden" id="id_latitude2" name="latitude2" value="{{ task.latitude2|default:'' }}">
+            <input type="hidden" id="id_longitude2" name="longitude2" value="{{ task.longitude2|default:'' }}">
+          </div>
 
-      <!-- RIGHT: Location fields + Map -->
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label class="form-label">Start Location</label>
-          <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location">
-          <label class="form-label mt-2">End Location</label>
-          <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location">
+          <!-- Repeat -->
+          <div class="mb-3">
+            <label for="{{ form.recur.id_for_label }}" class="form-label">Repeat</label>
+            {{ form.recur }}
+            {% if form.recur.errors %}
+              <div class="text-danger">{{ form.recur.errors }}</div>
+            {% endif %}
+          </div>
 
-          <!-- Hidden location fields -->
-          <input type="hidden" id="id_latitude" name="latitude">
-          <input type="hidden" id="id_longitude" name="longitude">
-          <input type="hidden" id="id_latitude2" name="latitude2">
-          <input type="hidden" id="id_longitude2" name="longitude2">
+          <!-- Repeat Count -->
+          <div class="mb-3">
+            <label for="{{ form.repeat_count.id_for_label }}" class="form-label">Repeat how many times?</label>
+            {{ form.repeat_count }}
+            {% if form.repeat_count.errors %}
+              <div class="text-danger">{{ form.repeat_count.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Map -->
+          <div id="map" style="height: 300px; width: 100%; margin-bottom: 10px;"></div>
+          <div id="travel_time" class="text-muted mb-2"></div>
         </div>
-        <!-- Repeat -->
-        <div class="mb-3">
-          <label for="{{ form.recur.id_for_label }}" class="form-label">Repeat</label>
-          {{ form.recur }}
-          {% if form.recur.errors %}
-            <div class="text-danger">{{ form.recur.errors }}</div>
-          {% endif %}
-        </div>
-
-        <!-- Repeat Count -->
-        <div class="mb-3">
-          <label for="{{ form.repeat_count.id_for_label }}" class="form-label">Repeat how many times?</label>
-          {{ form.repeat_count }}
-          {% if form.repeat_count.errors %}
-            <div class="text-danger">{{ form.repeat_count.errors }}</div>
-          {% endif %}
-        </div>
-
-        <!-- Map -->
-        <div id="map" style="height: 300px; width: 100%; margin-bottom: 10px;"></div>
-        <div id="travel_time" class="text-muted mb-2"></div>
       </div>
-    </div>
 
-    <div class="text-center mt-4">
-      <button type="submit" class="btn btn-primary px-4">Save Task</button>
-    </div>
-  </form>
-</div>
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary px-4">Save Task</button>
+      </div>
+    </form>
+  </div>
 {% endblock %}
 
 {% block extra_js %}
-{% if task.location or task.start_location %}
-
 <script>
+
   // Load the Google Maps JavaScript API asynchronously
-  function loadGoogleMapsAPI() {
+function loadGoogleMapsAPI() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap`;
@@ -134,183 +131,246 @@
   let autocomplete;
   let autocomplete2;
   let directionsService;
-  let directionsRenderer
+  let directionsRenderer;
 
+  // Initialize the map
   function initMap() {
+    // Default coordinates and zoom
+    const defaultLat = 40.7128;
+    const defaultLng = -74.0060;
+    const defaultZoom = 12;
+
+    // Get coordinates from hidden fields or use defaults
+    const lat = parseFloat(document.getElementById('id_latitude').value);
+    const lng = parseFloat(document.getElementById('id_longitude').value);
+    const lat2 = parseFloat(document.getElementById('id_latitude2').value);
+    const lng2 = parseFloat(document.getElementById('id_longitude2').value);
+
+    // Initialize the map
     map = new google.maps.Map(document.getElementById('map'), {
       center: {
-        lat: {{ task.latitude|default:"40.7128" }},
-        lng: {{ task.longitude|default:"-74.0060" }}
+        lat: !isNaN(lat) && !isNaN(lng) ? lat : defaultLat,
+        lng: !isNaN(lng) && !isNaN(lat) ? lng : defaultLng
       },
-      zoom: 12
+      zoom: defaultZoom
     });
 
     geocoder = new google.maps.Geocoder();
-    
-    // Initialize the marker using the standard Marker class
-    marker = new google.maps.Marker({
-      map: map,
-      position: {
-        lat: {{ task.latitude|default:"40.7128" }},
-        lng: {{ task.longitude|default:"-74.0060" }}
-      },
-      draggable: true
-    });
 
-    // Initialize the autocomplete
+    // Initialize markers only if valid coordinates exist
+    if (!isNaN(lat) && !isNaN(lng)) {
+      marker = new google.maps.Marker({
+        map: map,
+        position: { lat: lat, lng: lng },
+        draggable: true
+      });
+    }
+
+    if (!isNaN(lat2) && !isNaN(lng2)) {
+      marker2 = new google.maps.Marker({
+        map: map,
+        position: { lat: lat2, lng: lng2 },
+        draggable: true
+      });
+    }
+
+    // Initialize autocomplete
     const input = document.getElementById('location-input');
     const input2 = document.getElementById('location-input2');
     autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['geocode'],
-      componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
+      componentRestrictions: { country: 'us' }
     });
     autocomplete2 = new google.maps.places.Autocomplete(input2, {
       types: ['geocode'],
-      componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
+      componentRestrictions: { country: 'us' }
     });
 
-    // Bind the autocomplete to the map
+    // Bind autocomplete to map
     autocomplete.bindTo('bounds', map);
     autocomplete2.bindTo('bounds', map);
 
-    // Add a listener for when a place is selected
+    // Add place changed listeners
     autocomplete.addListener('place_changed', function() {
       const place = autocomplete.getPlace();
-
       if (place.geometry) {
-        // Set the map center and zoom to the selected place
         map.setCenter(place.geometry.location);
         map.setZoom(15);
-
-        // Update the marker position
-        marker.setPosition(place.geometry.location);
-
-        // Update the hidden fields with the coordinates
-        updateCoordinates(place.geometry.location, 1);
-      } else {
-        console.log("No details available for input: '" + place.name + "'");
-      }
-    });
-  autocomplete2.addListener('place_changed', function() {
-      const place = autocomplete2.getPlace();
-
-      if (place.geometry) {
-        // Set the map center and zoom to the selected place
-        map.setCenter(place.geometry.location);
-        map.setZoom(15);
-
-        // Update the marker position
-        marker2.setPosition(place.geometry.location);
-
-        // Update the hidden fields with the coordinates
-        updateCoordinates(place.geometry.location, 2);
-      } else {
-        console.log("No details available for input: '" + place.name + "'");
-      }
-    });
-
-    // Handle marker drag
-    marker.addListener('dragend', function() {
-      updateCoordinates(marker.getPosition(), 1);
-      reverseGeocode(marker.getPosition(), 1);
-    });
-    marker2.addListener('dragend', function() {
-      updateCoordinates(marker2.getPosition(), 2);
-      reverseGeocode(marker2.getPosition(), 2);
-    });
-
-    // Add a listener for when the user stops typing in the location field
-    input.addEventListener('blur', function() {
-      // If the input has a value but no place was selected from autocomplete
-      if (input.value && !marker.getPosition()) {
-        geocodeAddress(input.value, marker);
-      }
-    });
-    input2.addEventListener('blur', function() {
-      // If the input has a value but no place was selected from autocomplete
-      if (input2.value && !marker2.getPosition()) {
-        geocodeAddress(input2.value,  marker2);
-      }
-    });
-
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({
-        map: map
-    });
-
-    const request = {
-        destination: document.getElementById('location-input').value,
-        origin: document.getElementById('location-input2').value,
-        travelMode: google.maps.TravelMode.DRIVING
-    };
-    directionsService.route(request, (result, status) => {
-        if (status === 'OK') {
-            directionsRenderer.setDirections(result);
-
-            const duration = result.routes[0].legs[0].duration.text;
-            console.log('Estimated travel time: ' + duration);
-            document.getElementById('travel_time').innerText = duration;
+        if (!marker) {
+          marker = new google.maps.Marker({
+            map: map,
+            position: place.geometry.location,
+            draggable: true
+          });
+          // Add dragend listener for new marker
+          marker.addListener('dragend', function() {
+            updateCoordinates(marker.getPosition(), 1);
+            reverseGeocode(marker.getPosition(), 1);
+          });
         } else {
-            console.error('Directions request failed due to ' + status);
+          marker.setPosition(place.geometry.location);
         }
+        updateCoordinates(place.geometry.location, 1);
+      }
     });
 
+    autocomplete2.addListener('place_changed', function() {
+      const place = autocomplete2.getPlace();
+      if (place.geometry) {
+        map.setCenter(place.geometry.location);
+        map.setZoom(15);
+        if (!marker2) {
+          marker2 = new google.maps.Marker({
+            map: map,
+            position: place.geometry.location,
+            draggable: true
+          });
+          // Add dragend listener for new marker
+          marker2.addListener('dragend', function() {
+            updateCoordinates(marker2.getPosition(), 2);
+            reverseGeocode(marker2.getPosition(), 2);
+          });
+        } else {
+          marker2.setPosition(place.geometry.location);
+        }
+        updateCoordinates(place.geometry.location, 2);
+      }
+    });
+
+    // Handle input blur (including clearing inputs)
+    input.addEventListener('blur', function() {
+      if (input.value) {
+        if (!marker || !marker.getPosition()) {
+          geocodeAddress(input.value, marker || { setPosition: function(pos) { marker = new google.maps.Marker({ map: map, position: pos, draggable: true }); } });
+        }
+      } else {
+        // Clear coordinates and hide marker
+        document.getElementById('id_latitude').value = '';
+        document.getElementById('id_longitude').value = '';
+        if (marker) {
+          marker.setMap(null);
+          marker = null;
+        }
+        updateMapState();
+      }
+    });
+
+    input2.addEventListener('blur', function() {
+      if (input2.value) {
+        if (!marker2 || !marker2.getPosition()) {
+          geocodeAddress(input.value, marker2 || { setPosition: function(pos) { marker2 = new google.maps.Marker({ map: map, position: pos, draggable: true }); } });
+        }
+      } else {
+        // Clear coordinates and hide marker
+        document.getElementById('id_latitude2').value = '';
+        document.getElementById('id_longitude2').value = '';
+        if (marker2) {
+          marker2.setMap(null);
+          marker2 = null;
+        }
+        updateMapState();
+      }
+    });
+
+    // Add dragend listeners if markers exist
+    if (marker) {
+      marker.addListener('dragend', function() {
+        updateCoordinates(marker.getPosition(), 1);
+        reverseGeocode(marker.getPosition(), 1);
+      });
+    }
+    if (marker2) {
+      marker2.addListener('dragend', function() {
+        updateCoordinates(marker2.getPosition(), 2);
+        reverseGeocode(marker2.getPosition(), 2);
+      });
+    }
+
+    // Initialize directions service
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
+    // Calculate and display route if both locations exist and are valid
+    if (lat && lng && lat2 && lng2 && !isNaN(lat) && !isNaN(lng) && !isNaN(lat2) && !isNaN(lng2)) {
+      const request = {
+        destination: new google.maps.LatLng(lat, lng),
+        origin: new google.maps.LatLng(lat2, lng2),
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      directionsService.route(request, (result, status) => {
+        if (status === 'OK') {
+          directionsRenderer.setDirections(result);
+          const duration = result.routes[0].legs[0].duration.text;
+          document.getElementById('travel_time').innerText = duration;
+        }
+      });
+    }
   }
 
-  // Function to geocode an address and update the map
+  // Helper function to update map state (clear route and reset zoom if necessary)
+  function updateMapState() {
+    const defaultLat = 40.7128;
+    const defaultLng = -74.0060;
+    const defaultZoom = 12;
+
+    const lat = parseFloat(document.getElementById('id_latitude').value);
+    const lng = parseFloat(document.getElementById('id_longitude').value);
+    const lat2 = parseFloat(document.getElementById('id_latitude2').value);
+    const lng2 = parseFloat(document.getElementById('id_longitude2').value);
+
+    if (!lat || !lng || !lat2 || !lng2 || isNaN(lat) || isNaN(lng) || isNaN(lat2) || isNaN(lng2)) {
+      // Clear the route and reset map if no valid locations
+      directionsRenderer.setDirections({ routes: [] });
+      document.getElementById('travel_time').innerText = '';
+      if (!lat && !lng && !lat2 && !lng2) {
+        // Reset map center and zoom only if both locations are empty
+        map.setCenter({ lat: defaultLat, lng: defaultLng });
+        map.setZoom(defaultZoom);
+      }
+    } else {
+      // Render route if both locations are valid
+      const request = {
+        destination: new google.maps.LatLng(lat, lng),
+        origin: new google.maps.LatLng(lat2, lng2),
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      directionsService.route(request, (result, status) => {
+        if (status === 'OK') {
+          directionsRenderer.setDirections(result);
+          const duration = result.routes[0].legs[0].duration.text;
+          document.getElementById('travel_time').innerText = duration;
+        }
+      });
+    }
+  }
+
+  // Helper functions
   function geocodeAddress(address, mark) {
     geocoder.geocode({ address: address }, (results, status) => {
       if (status === 'OK' && results[0]) {
-        // Set the map center and zoom to the geocoded location
         map.setCenter(results[0].geometry.location);
         map.setZoom(15);
-
-        // Update the marker position
         mark.setPosition(results[0].geometry.location);
-
-        // Update the hidden fields with the coordinates
-        if (mark == marker) {
-          updateCoordinates(results[0].geometry.location, 1);
-        } else {
-          updateCoordinates(results[0].geometry.location, 2);
-        }
-      } else {
-        console.log('Geocode was not successful for the following reason: ' + status);
+        updateCoordinates(results[0].geometry.location, mark === marker ? 1 : 2);
       }
     });
   }
 
   function updateCoordinates(location, i) {
-    if (i == 1) {
+    if (i === 1) {
       document.getElementById('id_latitude').value = location.lat();
       document.getElementById('id_longitude').value = location.lng();
     } else {
       document.getElementById('id_latitude2').value = location.lat();
       document.getElementById('id_longitude2').value = location.lng();
     }
-    const request = {
-        destination: new google.maps.LatLng(document.getElementById('id_latitude').value, document.getElementById('id_longitude').value),
-        origin: new google.maps.LatLng(document.getElementById('id_latitude2').value, document.getElementById('id_longitude2').value),
-        travelMode: google.maps.TravelMode.DRIVING
-    };
-    directionsService.route(request, (result, status) => {
-        if (status === 'OK') {
-            directionsRenderer.setDirections(result);
-
-            const duration = result.routes[0].legs[0].duration.text;
-            console.log('Estimated travel time: ' + duration);
-            document.getElementById('travel_time').innerText = duration;
-        } else {
-            console.error('Directions request failed due to ' + status);
-        }
-    });
-
+    updateMapState();
   }
 
   function reverseGeocode(location, i) {
     geocoder.geocode({ location: location }, (results, status) => {
       if (status === 'OK' && results[0]) {
-        if (i == 1) {
+        if (i === 1) {
           document.getElementById('location-input').value = results[0].formatted_address;
         } else {
           document.getElementById('location-input2').value = results[0].formatted_address;
@@ -323,10 +383,7 @@
   window.addEventListener('load', function() {
     loadGoogleMapsAPI().catch(error => {
       console.error('Error loading Google Maps API:', error);
-      console.error('Error loading Google Maps API:', error);
     });
   });
 </script>
-{% endif %}
 {% endblock %}
-</div>

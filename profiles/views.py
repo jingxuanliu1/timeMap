@@ -5,6 +5,8 @@ from django.db.models import Q
 from .forms import UserProfileForm
 from .models import UserProfile, Friendship
 from django.contrib.auth.models import User
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
 
 
 @login_required
@@ -12,7 +14,7 @@ def profile_settings(request):
     try:
         profile = request.user.userprofile
     except UserProfile.DoesNotExist:
-        profile = UserProfile.objects.create(user=request.user, gmail=request.user.email or '')
+        profile = UserProfile.objects.create(user=request.user)
 
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
@@ -32,7 +34,7 @@ def profile_settings(request):
 @login_required
 def profile_view(request, username):
     user = get_object_or_404(User, username=username)
-    profile = user.userprofile
+    profile, created = UserProfile.objects.get_or_create(user=user)
     is_own_profile = (request.user == user)
 
     friendship_status = None
@@ -40,7 +42,7 @@ def profile_view(request, username):
     is_friend = False
 
     if not is_own_profile:
-        current_profile = request.user.userprofile
+        current_profile, _ = UserProfile.objects.get_or_create(user=request.user)
         is_friend = current_profile.is_friends_with(profile)
         friendship_status = current_profile.get_friendship_status(profile)
 
@@ -62,24 +64,39 @@ def profile_view(request, username):
 
 @login_required
 def friend_list(request):
-    profile = request.user.userprofile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
     query = request.GET.get('q', '')
     search_results = None
 
     if query:
         search_results = User.objects.filter(
             Q(username__icontains=query) |
-            Q(email__icontains=query) |
-            Q(userprofile__gmail__icontains=query)
+            Q(email__icontains=query)
         ).exclude(id=request.user.id).select_related('userprofile')
 
-    # Convert UserProfile objects to User objects for the friends list
-    friends_users = [friendship.user for friendship in profile.get_friends()]
+    # Get friends list - now using the properly implemented get_friends()
+    friend_profiles = profile.get_friends()
+    friends_users = [friend_profile.user for friend_profile in friend_profiles]
+
+    # Get pending requests
+    sent_requests = Friendship.objects.filter(
+        from_user=profile,
+        accepted=False
+    ).select_related('to_user__user')
+
+    received_requests = Friendship.objects.filter(
+        to_user=profile,
+        accepted=False
+    ).select_related('from_user__user')
+
+    friend_requests_sent = [req.to_user.user for req in sent_requests]
+    friend_requests_received = [req.from_user.user for req in received_requests]
 
     return render(request, 'profiles/friend_list.html', {
-        'friends': friends_users,  # Now passing User objects instead of UserProfile
-        'pending_requests': profile.get_pending_requests_received(),
-        'sent_requests': profile.get_pending_requests_sent(),
+        'friends': friends_users,
+        'pending_requests': received_requests,
+        'friend_requests_sent': friend_requests_sent,
+        'friend_requests_received': friend_requests_received,
         'search_results': search_results,
         'query': query
     })
@@ -88,27 +105,44 @@ def friend_list(request):
 @login_required
 def send_friend_request(request, username):
     if request.method == 'POST':
-        to_user = get_object_or_404(UserProfile, user__username=username)
-        from_user = request.user.userprofile
+        try:
+            to_user = User.objects.get(username=username)
+            to_profile = to_user.userprofile
+        except (User.DoesNotExist, UserProfile.DoesNotExist):
+            messages.error(request, "The user you're trying to add doesn't exist.")
+            return redirect('profiles:friend_list')
 
-        if from_user == to_user:
+        from_profile = request.user.userprofile
+
+        if from_profile == to_profile:
             messages.error(request, "You cannot send a friend request to yourself.")
-        elif from_user.get_friendship_status(to_user) == 'request_sent':
-            messages.warning(request, "Friend request already sent.")
-        elif from_user.get_friendship_status(to_user) == 'request_received':
-            # Accept existing request
-            friendship = Friendship.objects.get(from_user=to_user, to_user=from_user)
-            friendship.accepted = True
-            friendship.save()
-            messages.success(request, f"You are now friends with {username}!")
-        elif from_user.get_friendship_status(to_user) == 'friends':
+            return redirect('profiles:profile', username=username)
+
+        status = from_profile.get_friendship_status(to_profile)
+
+        if status == 'friends':
             messages.info(request, f"You are already friends with {username}.")
+        elif status == 'request_sent':
+            messages.warning(request, "Friend request already sent.")
+        elif status == 'request_received':
+            try:
+                friendship = Friendship.objects.get(
+                    from_user=to_profile,
+                    to_user=from_profile
+                )
+                friendship.accepted = True
+                friendship.save()
+                messages.success(request, f"You are now friends with {username}!")
+            except Friendship.DoesNotExist:
+                messages.error(request, "Friend request not found.")
         else:
-            Friendship.objects.create(from_user=from_user, to_user=to_user)
+            Friendship.objects.create(
+                from_user=from_profile,
+                to_user=to_profile
+            )
             messages.success(request, f"Friend request sent to {username}!")
 
     return redirect('profiles:profile', username=username)
-
 
 @login_required
 def respond_friend_request(request, request_id, action):
@@ -155,15 +189,56 @@ def current_user_profile(request):
 def search_users(request):
     query = request.GET.get('q', '')
     users = User.objects.none()
+    suggestions = []
 
     if query:
         users = User.objects.filter(
             Q(username__icontains=query) |
-            Q(email__icontains=query) |
-            Q(userprofile__gmail__icontains=query)
+            Q(email__icontains=query)
         ).exclude(id=request.user.id).select_related('userprofile')
+
+        if not users.exists():
+            suggestions = User.objects.filter(
+                username__istartswith=query[:3]
+            ).exclude(id=request.user.id).select_related('userprofile')[:5]
 
     return render(request, 'profiles/search_users.html', {
         'users': users,
+        'suggestions': suggestions,
         'query': query
+    })
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        username = user.username
+
+        # Log out the user before deletion to prevent any session issues
+        logout(request)
+
+        # Delete the user account (this will trigger the pre_delete signal)
+        user.delete()
+
+        messages.success(request, f'Your account ({username}) has been permanently deleted.')
+        return redirect('login')  # Redirect to Django's built-in login page
+
+    # If not a POST request, redirect to settings
+    return redirect('profiles:settings')
+
+@login_required
+def preferences(request):
+    # Get or create the user's profile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        background = request.POST.get('background', 'purple')
+        profile.background = background
+        profile.save()
+        messages.success(request, 'Preferences saved successfully!')
+        return redirect('profiles:preferences')
+
+    return render(request, 'profiles/preferences.html', {
+        'selected_background': profile.background
     })

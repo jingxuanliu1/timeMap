@@ -50,7 +50,7 @@ body {
   background-color: #f6f6f6 !important;
 }
 .ms-footer {
-  background-color: #202020;
+  background-color: #001f3f;
 }
 .ms-footer p {
   color: #7F7F7F;
@@ -235,7 +235,7 @@ h2.fw-bold {
 
 .tasks-background {
   position: relative;
-  min-height: 80vh; /* FULL viewport height */
+  min-height: 80vh ; /* FULL viewport height */
   width: 100%;
   background-color: transparent;
   overflow: hidden;
@@ -255,6 +255,19 @@ h2.fw-bold {
     opacity: 0.85; /* Matches .background-animation opacity */
     z-index: -1; /* Places it behind all content */
 }
+
+.tasks-background.theme-purple::before {
+  background-image: url('../img/background.png');
+}
+
+.tasks-background.theme-green::before {
+  background-image: url('../img/background2.png');
+}
+
+.tasks-background.theme-blue::before {
+  background-image: url('../img/background3.png');
+}
+
 /* Dropdown menu styling */
 .navbar-nav .dropdown-menu {
     background-color: #343a40; /* Dark background to match navbar */
@@ -293,13 +306,45 @@ h2.fw-bold {
   line-height: 1.8;
   text-align: center;
   font-family: 'Roboto Mono', monospace;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 10px;
   white-space: nowrap;
   box-sizing: border-box;
   position: relative;
   z-index: 2;
   margin: 0;
+}
+
+/* Quote styling */
+.quote-box {
+  background-color: #626c9e;
+  color: #ffffff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: center;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+  white-space: normal;
+}
+
+.quote-text {
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+.quote-author {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Roboto Mono', monospace;
+  font-style: italic;
+  text-align: center;
+  margin: 0; /* Remove default margin to control spacing */
 }
 
 .top-overlay {
@@ -328,12 +373,14 @@ h2.fw-bold {
   font-weight: 600;
   color: #333;
 }
+
 #task-form input, #task-form textarea, #task-form select {
   border-radius: 10px;
   border: 1px solid #ccc;
   padding: 8px 12px;
   font-size: 0.95rem;
 }
+
 #map {
   border-radius: 10px;
   border: 1px solid #aaa;
@@ -395,5 +442,24 @@ h2.fw-bold {
   margin-bottom: 1rem !important;
 }
 
+/* Leaderboard styling */
+.leaderboard-table {
+    margin-top: 20px;
+}
 
+.leaderboard-table th {
+    position: sticky;
+    top: 0;
+    background: #343a40;
+    color: white;
+}
 
+.leaderboard-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Medal badges */
+.badge-medal {
+    font-size: 1.2em;
+    padding: 5px 10px;
+}
