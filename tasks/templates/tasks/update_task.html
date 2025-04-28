@@ -77,6 +77,24 @@
             <input type="hidden" id="id_longitude2" name="longitude2" value="{{ task.longitude2|default:'' }}">
           </div>
 
+          <!-- Repeat -->
+          <div class="mb-3">
+            <label for="{{ form.recur.id_for_label }}" class="form-label">Repeat</label>
+            {{ form.recur }}
+            {% if form.recur.errors %}
+              <div class="text-danger">{{ form.recur.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Repeat Count -->
+          <div class="mb-3">
+            <label for="{{ form.repeat_count.id_for_label }}" class="form-label">Repeat how many times?</label>
+            {{ form.repeat_count }}
+            {% if form.repeat_count.errors %}
+              <div class="text-danger">{{ form.repeat_count.errors }}</div>
+            {% endif %}
+          </div>
+
           <!-- Map -->
           <div id="map" style="height: 300px; width: 100%; margin-bottom: 10px;"></div>
           <div id="travel_time" class="text-muted mb-2"></div>
@@ -92,6 +110,7 @@
 
 {% block extra_js %}
 <script>
+
   // Load the Google Maps JavaScript API asynchronously
 function loadGoogleMapsAPI() {
     return new Promise((resolve, reject) => {

@@ -3,36 +3,56 @@ from django.contrib.auth.forms import UserCreationForm, SetPasswordForm
 from django.contrib.auth.models import User
 from .models import UserProfile
 
-
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)  # Make sure this is here
+    email = forms.EmailField(
+        label="Email Address",
+        help_text="Please enter your email address.",
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("This username is already taken.")
+        return username
+
     def clean_email(self):
-        email = self.cleaned_data['email']
+        email = self.cleaned_data['email'].lower()
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("This email is already in use.")
+            raise forms.ValidationError("This email address is already in use.")
         return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.email = self.cleaned_data['email']  # Ensure email is saved
+        user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            # Remove the profile creation here since the signal handles it
+            UserProfile.objects.get_or_create(user=user, defaults={'email': self.cleaned_data['email']})
         return user
 
 class CustomSetPasswordForm(SetPasswordForm):
+    email = forms.EmailField(
+        label="Email Address",
+        help_text="Please enter your email address.",
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if UserProfile.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email address is already in use.")
+        return email
+
     def save(self, commit=True):
         user = super().save(commit=False)
         if commit:
             user.save()
-            UserProfile.objects.get_or_create(user=user)
+            UserProfile.objects.get_or_create(user=user, defaults={'email': self.cleaned_data['email']})
         return user
-
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -84,6 +104,6 @@ class UserProfileForm(forms.ModelForm):
 
     def clean_profile_image(self):
         image = self.cleaned_data.get('profile_image')
-        if image and image.size > 5 * 1024 * 1024:  # 5MB limit
+        if image and image.size > 5 * 1024 * 1024:
             raise forms.ValidationError("Image size must be less than 5MB")
         return image

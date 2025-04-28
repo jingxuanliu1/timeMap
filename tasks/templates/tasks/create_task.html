@@ -3,101 +3,128 @@
 
 {% block content %}
   <div class="container mt-5 mb-5">
-  <h2 class="mb-4 text-center">Create New Task</h2>
-  <form method="POST" id="task-form">
-    {% csrf_token %}
-    <input type="hidden" name="selected_date" value="{{ selected_date }}">
-    <input type="hidden" name="start_date" value="{{ start_date }}">
- <div class="row">
+    <h2 class="mb-4 text-center">Create New Task</h2>
+    <form method="POST" id="task-form">
+      {% csrf_token %}
+      <input type="hidden" name="selected_date" value="{{ selected_date }}">
+      <input type="hidden" name="start_date" value="{{ start_date }}">
+      <div class="row">
 
-<!-- LEFT: Title, Completed?, Description, Time -->
-<!-- Modified LEFT section -->
-<div class="col-md-6">
-<!-- Title + Completed row -->
-        <div class="row mb-3">
-          <div class="col-8">
-            <div class="mb-3">
-              <label for="id_title" class="form-label">Title</label>
-              {{ form.title }}
-              {% if form.title.errors %}
-                <div class="text-danger">{{ form.title.errors }}</div>
-              {% endif %}
-            </div>
-          </div>
-          <div class="col-4">
-            <div class="mb-3">
-              <label for="id_completed" class="form-label">Completed?</label>
-              <div class="form-check form-switch mt-1">
-                {{ form.completed }}
+        <!-- LEFT column -->
+        <div class="col-md-6">
+          <!-- Title + Completed -->
+          <div class="row mb-3">
+            <div class="col-8">
+              <div class="mb-3">
+                <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                  <div class="text-danger">{{ form.title.errors }}</div>
+                {% endif %}
               </div>
-              {% if form.completed.errors %}
-                <div class="text-danger">{{ form.completed.errors }}</div>
-              {% endif %}
             </div>
+            <div class="col-4">
+              <div class="mb-3">
+                <label for="{{ form.completed.id_for_label }}" class="form-label">Completed?</label>
+                <div class="form-check form-switch mt-1">
+                  {{ form.completed }}
+                </div>
+                {% if form.completed.errors %}
+                  <div class="text-danger">{{ form.completed.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+              <div class="text-danger">{{ form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Time -->
+          <div class="mb-3">
+            <label class="form-label">Time</label>
+            <div class="d-flex align-items-center gap-2">
+              <div class="flex-grow-1">
+                {{ form.start_time }}
+              </div>
+              <span class="mx-1">–</span>
+              <div class="flex-grow-1">
+                {{ form.end_time }}
+              </div>
+            </div>
+            {% if form.start_time.errors %}
+              <div class="text-danger">{{ form.start_time.errors }}</div>
+            {% endif %}
+            {% if form.end_time.errors %}
+              <div class="text-danger">{{ form.end_time.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Notify Before -->
+          <div class="mb-3">
+            <label for="{{ form.notify_before.id_for_label }}" class="form-label">Notify Me</label>
+            {{ form.notify_before }}
+            {% if form.notify_before.errors %}
+              <div class="text-danger">{{ form.notify_before.errors }}</div>
+            {% endif %}
           </div>
         </div>
 
-  <!-- Description -->
-  <div class="mb-3">
-    <label for="id_description" class="form-label">Description</label>
-    {{ form.description }}
-    {% if form.description.errors %}
-      <div class="text-danger">{{ form.description.errors }}</div>
-    {% endif %}
-  </div>
+        <!-- RIGHT column -->
+        <div class="col-md-6 mt-md-0 mt-3">
+          <div class="mb-3">
+            <label class="form-label">Start Location</label>
+            <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location">
 
-  <!-- Time -->
-  <div class="mb-3">
-    <label class="form-label">Time</label>
-    <div class="d-flex align-items-center gap-2">
-      <div class="flex-grow-1">
-        {{ form.start_time }}
-      </div>
-      <span class="mx-1">–</span>
-      <div class="flex-grow-1">
-        {{ form.end_time }}
-      </div>
-    </div>
-    {% if form.start_time.errors %}
-      <div class="text-danger">{{ form.start_time.errors }}</div>
-    {% endif %}
-    {% if form.end_time.errors %}
-      <div class="text-danger">{{ form.end_time.errors }}</div>
-    {% endif %}
-  </div>
-</div>
+            <label class="form-label mt-2">End Location</label>
+            <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location">
 
-      <!-- RIGHT: Location fields + Map -->
-   <div class="col-md-6 mt-md-0 mt-3">
+            <!-- Hidden fields -->
+            <input type="hidden" id="id_latitude" name="latitude">
+            <input type="hidden" id="id_longitude" name="longitude">
+            <input type="hidden" id="id_latitude2" name="latitude2">
+            <input type="hidden" id="id_longitude2" name="longitude2">
+          </div>
+
+        <!-- Recur task -->
         <div class="mb-3">
-          <label class="form-label">Start Location</label>
-          <input type="text" id="location-input2" name="start_location" class="form-control" placeholder="Enter Start location">
-          <label class="form-label mt-2">End Location</label>
-          <input type="text" id="location-input" name="location" class="form-control" placeholder="Enter End location">
-
-          <!-- Hidden location fields -->
-          <input type="hidden" id="id_latitude" name="latitude">
-          <input type="hidden" id="id_longitude" name="longitude">
-          <input type="hidden" id="id_latitude2" name="latitude2">
-          <input type="hidden" id="id_longitude2" name="longitude2">
+          <label for="{{ form.recur.id_for_label }}" class="form-label">Repeat</label>
+          {{ form.recur }}
+          {% if form.recur.errors %}
+            <div class="text-danger">{{ form.recur.errors }}</div>
+          {% endif %}
         </div>
 
-        <!-- Map -->
-        <div id="map" style="height: 300px; width: 100%; margin-bottom: 10px;"></div>
-        <div id="travel_time" class="text-muted mb-2"></div>
-      </div>
-    </div>
+        <!-- Repeat count -->
+        <div class="mb-3">
+          <label for="{{ form.repeat_count.id_for_label }}" class="form-label">Repeat how many times?</label>
+          {{ form.repeat_count }}
+          {% if form.repeat_count.errors %}
+            <div class="text-danger">{{ form.repeat_count.errors }}</div>
+          {% endif %}
+        </div>
 
-    <div class="text-center mt-4">
-      <button type="submit" class="btn btn-primary px-4">Save Task</button>
-    </div>
-  </form>
+          <!-- Map -->
+          <div id="map" style="height: 300px; width: 100%; margin-bottom: 10px;"></div>
+          <div id="travel_time" class="text-muted mb-2"></div>
+        </div>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary px-4">Save Task</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  // Load the Google Maps JavaScript API asynchronously
   function loadGoogleMapsAPI() {
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -110,184 +137,130 @@
     });
   }
 
-  let map;
-  let marker;
-  let marker2;
-  let geocoder;
-  let autocomplete;
-  let autocomplete2;
-  let directionsService;
-  let directionsRenderer
+  let map, marker, marker2, geocoder, autocomplete, autocomplete2, directionsService, directionsRenderer;
 
-  // Initialize the map
   function initMap() {
-    // Initialize the map
     map = new google.maps.Map(document.getElementById('map'), {
-      center: { lat: 40.7128, lng: -74.0060 }, // Default to New York City
+      center: { lat: 40.7128, lng: -74.0060 },
       zoom: 12
     });
 
     geocoder = new google.maps.Geocoder();
+    marker = new google.maps.Marker({ map: map, draggable: true });
+    marker2 = new google.maps.Marker({ map: map, draggable: true });
 
-    // Initialize the marker using the standard Marker class
-    marker = new google.maps.Marker({
-      map: map,
-      draggable: true
-    });
-    marker2 = new google.maps.Marker({
-      map: map,
-      draggable: true
-    });
-
-    // Initialize the autocomplete
     const input = document.getElementById('location-input');
     const input2 = document.getElementById('location-input2');
     autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['geocode'],
-      componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
+      componentRestrictions: { country: 'us' }
     });
     autocomplete2 = new google.maps.places.Autocomplete(input2, {
       types: ['geocode'],
-      componentRestrictions: { country: 'us' } // Restrict to US locations, remove this line to allow worldwide
+      componentRestrictions: { country: 'us' }
     });
 
-    // Bind the autocomplete to the map
     autocomplete.bindTo('bounds', map);
     autocomplete2.bindTo('bounds', map);
 
-    // Add a listener for when a place is selected
-    autocomplete.addListener('place_changed', function() {
+    autocomplete.addListener('place_changed', () => {
       const place = autocomplete.getPlace();
-
       if (place.geometry) {
-        // Set the map center and zoom to the selected place
         map.setCenter(place.geometry.location);
         map.setZoom(15);
-
-        // Update the marker position
         marker.setPosition(place.geometry.location);
-
-        // Update the hidden fields with the coordinates
         updateCoordinates(place.geometry.location, 1);
-      } else {
-        console.log("No details available for input: '" + place.name + "'");
       }
     });
-  autocomplete2.addListener('place_changed', function() {
-      const place = autocomplete2.getPlace();
 
+    autocomplete2.addListener('place_changed', () => {
+      const place = autocomplete2.getPlace();
       if (place.geometry) {
-        // Set the map center and zoom to the selected place
         map.setCenter(place.geometry.location);
         map.setZoom(15);
-
-        // Update the marker position
         marker2.setPosition(place.geometry.location);
-
-        // Update the hidden fields with the coordinates
         updateCoordinates(place.geometry.location, 2);
-      } else {
-        console.log("No details available for input: '" + place.name + "'");
       }
     });
 
-    // Handle marker drag
-    marker.addListener('dragend', function() {
+    marker.addListener('dragend', () => {
       updateCoordinates(marker.getPosition(), 1);
       reverseGeocode(marker.getPosition(), 1);
     });
-    marker2.addListener('dragend', function() {
+
+    marker2.addListener('dragend', () => {
       updateCoordinates(marker2.getPosition(), 2);
       reverseGeocode(marker2.getPosition(), 2);
     });
 
-    // Add a listener for when the user stops typing in the location field
-    input.addEventListener('blur', function() {
-      // If the input has a value but no place was selected from autocomplete
+    input.addEventListener('blur', () => {
       if (input.value && !marker.getPosition()) {
         geocodeAddress(input.value, marker);
       }
     });
-    input2.addEventListener('blur', function() {
-      // If the input has a value but no place was selected from autocomplete
+
+    input2.addEventListener('blur', () => {
       if (input2.value && !marker2.getPosition()) {
-        geocodeAddress(input2.value,  marker2);
+        geocodeAddress(input2.value, marker2);
       }
     });
 
     directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({
-        map: map
-    });
-
+    directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
   }
 
-  // Function to geocode an address and update the map
   function geocodeAddress(address, mark) {
     geocoder.geocode({ address: address }, (results, status) => {
       if (status === 'OK' && results[0]) {
-        // Set the map center and zoom to the geocoded location
         map.setCenter(results[0].geometry.location);
         map.setZoom(15);
-
-        // Update the marker position
         mark.setPosition(results[0].geometry.location);
-
-        // Update the hidden fields with the coordinates
-        if (mark == marker) {
-          updateCoordinates(results[0].geometry.location, 1);
-        } else {
-          updateCoordinates(results[0].geometry.location, 2);
-        }
-      } else {
-        console.log('Geocode was not successful for the following reason: ' + status);
+        updateCoordinates(results[0].geometry.location, mark === marker ? 1 : 2);
       }
     });
   }
 
   function updateCoordinates(location, i) {
-    if (i == 1) {
+    if (i === 1) {
       document.getElementById('id_latitude').value = location.lat();
       document.getElementById('id_longitude').value = location.lng();
     } else {
       document.getElementById('id_latitude2').value = location.lat();
       document.getElementById('id_longitude2').value = location.lng();
     }
-    if (document.getElementById('id_latitude').value != null && document.getElementById('id_latitude2').value != null) {
+
+    if (document.getElementById('id_latitude').value && document.getElementById('id_latitude2').value) {
       const request = {
-        destination: new google.maps.LatLng(document.getElementById('id_latitude').value, document.getElementById('id_longitude').value),
-        origin: new google.maps.LatLng(document.getElementById('id_latitude2').value, document.getElementById('id_longitude2').value),
+        destination: new google.maps.LatLng(
+          document.getElementById('id_latitude').value,
+          document.getElementById('id_longitude').value
+        ),
+        origin: new google.maps.LatLng(
+          document.getElementById('id_latitude2').value,
+          document.getElementById('id_longitude2').value
+        ),
         travelMode: google.maps.TravelMode.DRIVING
       };
       directionsService.route(request, (result, status) => {
         if (status === 'OK') {
-            directionsRenderer.setDirections(result);
-
-            const duration = result.routes[0].legs[0].duration.text;
-            console.log('Estimated travel time: ' + duration);
-            document.getElementById('travel_time').innerText = duration;
-        } else {
-            console.error('Directions request failed due to ' + status);
+          directionsRenderer.setDirections(result);
+          const duration = result.routes[0].legs[0].duration.text;
+          document.getElementById('travel_time').innerText = duration;
         }
       });
     }
-
   }
 
   function reverseGeocode(location, i) {
     geocoder.geocode({ location: location }, (results, status) => {
       if (status === 'OK' && results[0]) {
-        if (i == 1) {
-          document.getElementById('location-input').value = results[0].formatted_address;
-        } else {
-          document.getElementById('location-input2').value = results[0].formatted_address;
-        }
+        const fieldId = i === 1 ? 'location-input' : 'location-input2';
+        document.getElementById(fieldId).value = results[0].formatted_address;
       }
     });
   }
 
-  // Load the Google Maps API when the page loads
-  window.addEventListener('load', function() {
+  window.addEventListener('load', () => {
     loadGoogleMapsAPI().catch(error => {
       console.error('Error loading Google Maps API:', error);
     });

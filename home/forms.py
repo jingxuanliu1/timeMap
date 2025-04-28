@@ -1,28 +1,39 @@
-'''from django import forms
+from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from profiles.models import UserProfile
+from django.core.exceptions import ValidationError
 
 class CustomUserCreationForm(UserCreationForm):
-    gmail = forms.EmailField(label="Gmail Address", help_text="Please enter your Gmail address.")
+    email = forms.EmailField(
+        label="Email Address",
+        help_text="Please enter your email address.",
+        widget=forms.EmailInput(attrs={'class': 'form-control'})
+    )
 
     class Meta:
         model = User
-        fields = ('username', 'gmail', 'password1', 'password2')
+        fields = ('username', 'email', 'password1', 'password2')
 
-    def clean_gmail(self):
-        gmail = self.cleaned_data['gmail']
-        if not gmail.endswith('@gmail.com'):
-            raise forms.ValidationError("Please use a Gmail address (e.g., example@gmail.com).")
-        if UserProfile.objects.filter(gmail=gmail).exists():
-            raise forms.ValidationError("This Gmail address is already in use.")
-        return gmail
+    def __init__(self, *args, **kwargs):
+        super(CustomUserCreationForm, self).__init__(*args, **kwargs)
+        for fieldname in ['username', 'password1', 'password2']:
+            self.fields[fieldname].help_text = None
+            self.fields[fieldname].widget.attrs.update({'class': 'form-control'})
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if UserProfile.objects.filter(email=email).exists():
+            raise ValidationError("This email is already in use.")
+        return email
 
     def save(self, commit=True):
-        user = super().save(commit=commit)
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
         if commit:
+            user.save()
             UserProfile.objects.create(
                 user=user,
-                gmail=self.cleaned_data['gmail']
+                email=self.cleaned_data['email']
             )
-        return user'''
+        return user

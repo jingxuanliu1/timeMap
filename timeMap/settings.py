@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from celery.schedules import crontab
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,6 +34,8 @@ INSTALLED_APPS = [
     'profiles',
     'home',
     'tasks',
+    'notifications',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -88,12 +91,34 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'timeMap/static/']
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Authentication settings
+# Authentication & Email setting
 LOGIN_REDIRECT_URL = 'home.index'
 LOGOUT_REDIRECT_URL = 'home.index'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'odproject2340@gmail.com'
+EMAIL_HOST_PASSWORD = 'iufl qdbe yfgr zore'  # used the app password
+DEFAULT_FROM_EMAIL = 'odproject2340@gmail.com'
+
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Celery setting
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'America/New_York'
+CELERY_BEAT_SCHEDULE = {
+    'send-task-notifications-every-minute': {
+        'task': 'notifications.tasks.send_upcoming_task_notifications',
+        'schedule': crontab(),  # every minute
+    },
+}
 
 # Google Maps API Key
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')

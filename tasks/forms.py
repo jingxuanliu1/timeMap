@@ -1,7 +1,21 @@
 from django import forms
-from .models import Task
+from tasks.models import Task
 
 class TaskForm(forms.ModelForm):
+    NOTIFICATION_CHOICES = [
+        (5, "5 minutes before"),
+        (10, "10 minutes before"),
+        (15, "15 minutes before"),
+        (20, "20 minutes before"),
+        (30, "30 minutes before"),
+    ]
+
+    notify_before = forms.ChoiceField(
+        choices=NOTIFICATION_CHOICES,
+        required=False,
+        label="Notify me"
+    )
+
     start_time = forms.DateTimeField(
         widget=forms.DateTimeInput(attrs={"type": "datetime-local"})
     )
@@ -15,6 +29,22 @@ class TaskForm(forms.ModelForm):
 
     class Meta:
         model = Task
+        fields = [
+            'title',
+            'description',
+            'location',
+            'start_location',
+            'start_time',
+            'end_time',
+            'completed',
+            'latitude',
+            'longitude',
+            'latitude2',
+            'longitude2',
+            'notify_before',
+            'recur',
+            'repeat_count',
+        ]
         widgets = {
             'location': forms.TextInput(attrs={
                 'id': 'location-input',
@@ -25,8 +55,19 @@ class TaskForm(forms.ModelForm):
                 'id': 'location-input2',
                 'class': 'form-control',
                 'placeholder': 'Enter Start location'
-            })
+            }),
+            'recur': forms.Select(attrs={'class': 'form-select'}),
         }
-        fields = ['title', 'description', 'location', 'start_location',
-                 'start_time', 'end_time', 'completed',
-                 'latitude', 'longitude', 'latitude2', 'longitude2']
+
+    repeat_count = forms.IntegerField(
+        required=False,
+        label="Repeat how many times?",
+        min_value=1,
+        initial=5,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. 5'
+        })
+    )
+
+

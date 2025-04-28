@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        padding: 20px;
+      }
+      .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 500px;
+        margin: auto;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+      }
+      .title {
+        color: #333;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .message {
+        margin-top: 10px;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="title">⏰ TimeMap - Upcoming Task Reminder</div>
+      <div class="message">
+        <p>Hi {{ user.username }},</p>
+        <p>Your task "<strong>{{ task.title }}</strong>" is scheduled for <strong>{{ task.start_time|date:"Y-m-d H:i" }}</strong>.</p>
+        <p>Please prepare in advance!</p>
+      </div>
+    </div>
+  </body>
+</html>

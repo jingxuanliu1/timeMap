@@ -16,7 +16,7 @@
         {% endif %}
         <form method="post">
           {% csrf_token %}
-          {{ template_data.form.as_p }}
+          {{ form.as_p }}
           <button type="submit" class="btn btn-success">Register</button>
         </form>
         <p class="mt-3">
