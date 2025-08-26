@@ -1,4 +1,4 @@
-jing's timemape
+jing's timemap project
 About
 
 TimeMap allows users to plot events, milestones, or datasets with temporal and geographic components on an interactive map. Whether you're tracking historical events, project timelines, or real-time data, TimeMap provides a user-friendly interface to visualize and analyze time-based spatial data.
