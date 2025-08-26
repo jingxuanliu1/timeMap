@@ -8,4 +8,4 @@ Interactive Map: Visualize data points on a dynamic, zoomable map.
 Timeline Integration: Navigate through time with a built-in timeline slider.
 Customizable Data: Import and display custom datasets in formats like CSV or JSON.
 Cross-Platform: Runs on web browsers, with potential for mobile support.
-Open Source: Free to use and modify, with a welcoming community for contributions.
+
